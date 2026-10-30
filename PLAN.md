@@ -70,8 +70,8 @@ Eine Etappe ist erst fertig, wenn:
 - [x] 16-bit TIFF + PNG (voll, `output/full_res/`, nicht im Git) + JPEG (Web, `output/`)
 - [x] Bildunterschrift (englisch) aus Parameterdateien erzeugt: Programm, Filter, Farbzuordnung, Bearbeitung, Credits
 - [ ] Credits-Hinweise von STScI/MAST und Linienzuordnung der Filter vor Veröffentlichung prüfen
-- [ ] Ergebnis/Fazit in `06_export.ipynb` ausgefüllt
-- [ ] Commit + Push
+- [x] Ergebnis/Fazit in `06_export.ipynb` ausgefüllt
+- [x] Commit + Push
 
 ### Etappe 7 – Zweites Objekt / Generalisierung
 - [ ] Ring-Nebel NGC 6720 (Programm 1558) mit derselben Pipeline
@@ -83,6 +83,15 @@ Eine Etappe ist erst fertig, wenn:
 - [ ] Entscheiden: Repo vollständig auf Englisch (README, Markdown-Zellen, Fazits)?
 - [ ] README mit Beispielbildern, Lizenz, Datennachweis
 - [ ] Repo öffentlich schalten
+
+### Etappe 9 – Automatisierung / „Entdecker-Modus“ (Idee, nach Etappe 7/8)
+Ziel: beliebige passende JWST-Bilddaten mit derselben Pipeline per Skript verarbeiten.
+- [ ] Stufe 1: Generalisierung aus Etappe 7 (Funktionen in `src/`, am Ring-Nebel getestet)
+- [ ] Stufe 2: Skript + Konfigurationsdatei pro Objekt (Programm, Filter, Farbvariante A/B/C, Parameter) → jedes Bild per Befehl reproduzierbar
+- [ ] Stufe 3: Entdecker-Modus: MAST nach geeigneten Kandidaten durchsuchen, zufällig wählen, Vorschaubild mit Standardwerten (Variante A) + Kurzbericht; Favoriten von Hand verfeinern
+- Vorab-Filter: nur Bildgebung, ≥ 3 Filter, öffentlich, Stufe 3, überlappende Bildfelder, Größengrenze (RAM 16 GB)
+- Bekannte Fallstricke: Mosaike mit Detektorlücken (`binary_fill_holes` würde sie weiß füllen → Lückengröße begrenzen), Spektroskopie/Koronografie/Zeitreihen/bewegte Ziele ausschließen, große Datenmengen
+- Analogie: wie bei der Mikroskopie braucht jede Aufnahmeart ihre eigene Verarbeitung (ein Z-Stapel ist kein 2D-Bild) → Pipeline erkennt und überspringt Ungeeignetes, statt alles gleich zu behandeln
 
 ## Entscheidungen
 
