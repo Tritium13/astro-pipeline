@@ -133,3 +133,13 @@ Notebook `notebooks/02_inspect_fits.ipynb`.
 | F470N | F444W | F470N | LONG | 2348×2356 | 0.0630 | 2319 | 2.1 | 0.552 | 0.933 | 54.5 |
 
 Einheit aller SCI-Daten: MJy/sr. bkg/noise = sigma-clipped Median/Std über das ganze Bild (enthält vermutlich schwaches Nebellicht).
+
+## 30.10.2026 – Etappe 3: Registrierung
+
+Notebook `notebooks/03_reproject.ipynb`.
+
+- Zielraster per `find_optimal_celestial_wcs` ((shape, wcs)-Tupel wurden akzeptiert): 3127 × 3121 px, 0,063″/px, Norden oben, TAN. ≈57 % gültige Pixel (gedrehte Originale → leere Ecken).
+- `reproject_adaptive(..., conserve_flux=False)`: F090W/F187N/F212N je ≈24 s, F356W/F405N/F470N je ≈9 s.
+- Ausgabe: `data/ngc3132_nircam_reproj_lw/ngc3132_<band>_reproj_lw.fits` (Primary = SCI mit WCS + BAND/BUNIT/SRCFILE/REPROJ, Extension FOOTPRINT), ≈39 MB pro Filter.
+- Sternkontrolle (9 Sterne, Zentroid vs. F356W, Median): F090W 0,18 px, F187N 0,15, F212N 0,10, F405N 0,24, F470N 0,20 (1 px = 63 mas).
+- Vorschaubilder zum Ansehen durch Claude liegen in `data/_previews/` (ignoriert von Git, kann gelöscht werden).

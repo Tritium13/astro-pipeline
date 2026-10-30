@@ -37,16 +37,19 @@ Eine Etappe ist erst fertig, wenn:
 - [x] WCS (Pixel ↔ Himmelskoordinaten) verstehen (SW 0,0307″, LW 0,063″, Bildfeld ≈2,47′)
 - [x] Histogramm, NaN-Ränder, Hintergrund, Dynamikumfang ansehen
 - [x] Alle 6 Dateien geöffnet (Integritätscheck ok)
-- [ ] Ergebnis/Fazit in `02_inspect_fits.ipynb` ausgefüllt
-- [ ] Commit + Push
+- [x] Ergebnis/Fazit in `02_inspect_fits.ipynb` ausgefüllt
+- [x] Commit + Push
 
 ### Etappe 3 – Ausrichten / Registrierung (`03_reproject.ipynb`)
-- [ ] Referenzraster wählen
-- [ ] Alle Filter mit `reproject` auf dieses Raster bringen
-- [ ] Kontrolle: Sterne in Overlays deckungsgleich?
+- [x] Referenzraster wählen (3127 × 3121 px, 0,063″/px, Norden oben)
+- [x] Alle Filter mit `reproject_adaptive` auf dieses Raster bringen (≈24 s SW, ≈9 s LW pro Filter)
+- [x] Kontrolle: Sterne deckungsgleich (Versatz 0,10–0,24 px; Overlay symmetrisch)
+- [ ] Ergebnis/Fazit in `03_reproject.ipynb` ausgefüllt
+- [ ] Commit + Push
 
 ### Etappe 4 – Strecken (`04_stretch.ipynb`)
-- [ ] Hintergrund abziehen, Schwarz-/Weißpunkt per Perzentil
+- [ ] Hintergrund abziehen, Schwarz-/Weißpunkt per Perzentil (Hintergrund in leerer Region messen, nicht übers ganze Bild)
+- [ ] F212N: Hintergrund-Artefakte (Streifen, Detektor-Sprünge) beachten
 - [ ] Linear vs. asinh vs. log vergleichen
 - [ ] Gewählte Parameter pro Filter dokumentieren
 
@@ -76,7 +79,8 @@ Eine Etappe ist erst fertig, wenn:
 | 30.10.2026 | Einstieg mit Stufe-3-Produkten (`_i2d.fits`) | Schon kalibriert, kombiniert und auf ein Himmelsraster gebracht; die eigene JWST-Kalibrier-Pipeline ist für den Einstieg nicht nötig | angenommen |
 | 30.10.2026 | Werkzeuge: astropy, astroquery, reproject, matplotlib | Etablierte, gepflegte Pakete aus dem Astropy-Umfeld; über conda-forge verfügbar | angenommen |
 | 30.10.2026 | Versionen nicht in `environment.yml` pinnen, sondern nach Installation im Worklog festhalten | Neueste kompatible Versionen ziehen, trotzdem reproduzierbar | angenommen |
-| – | Referenzraster für die Registrierung: SW (0,031″) oder LW (0,063″) | Tendenz: zum Ausprobieren LW (≈4× weniger Pixel, schont 16 GB RAM), fürs finale Bild evtl. SW. Etappe 2: auch Bilder desselben Kanals haben leicht unterschiedliche Raster → alle 6 Filter müssen reprojiziert werden | offen |
+| 30.10.2026 | Referenzraster: neues gemeinsames Raster mit 0,063″/px (LW-Auflösung), Norden oben, TAN, via `find_optimal_celestial_wcs` | Alle 6 Filter haben leicht unterschiedliche Raster und sind gedreht → alle reprojizieren; LW-Auflösung schont RAM (≈4× weniger Pixel) und verliert bei LW nichts; Norden oben = Konvention, Ausschnitt/Drehung fürs Endbild in Etappe 6. SW-Auflösung später als Option fürs finale Bild | angenommen |
+| 30.10.2026 | Reprojektionsmethode: `reproject_adaptive`, `conserve_flux=False` | SW wird um Faktor 2 verkleinert: adaptive Methode mittelt (wie Binning „Average“) statt nur zu interpolieren; Einheit MJy/sr ist Flächenhelligkeit → mitteln, nicht summieren | angenommen |
 | – | Streckfunktion | offen (Etappe 4) | offen |
 | – | Farbzuordnung | offen (Etappe 5) | offen |
 
