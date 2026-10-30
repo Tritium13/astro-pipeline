@@ -162,3 +162,12 @@ Notebook `notebooks/04_stretch.ipynb`, Parameter in `params/ngc3132_stretch.json
 | F470N | 0.4152 | 0.0573 | 2.25 | −0.5 | 0.029 | 54.18 |
 
 (black/white relativ zum abgezogenen Hintergrund, MJy/sr; asinh a = 0,05 für alle.)
+
+## 30.10.2026 – Etappe 5: Farbe
+
+Notebook `notebooks/05_color.ipynb`, Zuordnungen in `params/ngc3132_color.json` (im Git), Vorschauen in `output/previews/` (≈1040 px, im Git), volle Auflösung als `.npy` in `data/ngc3132_nircam_color/` (nicht im Git).
+
+- Mischung: RGB = Σ(w·img·Farbe) / Σ(w·Farbe) pro Kanal, auf 0–1 begrenzt.
+- Varianten: A chromatisch (240° → 0° nach Wellenlänge), B NASA-Schlüssel, C physikalisch gruppiert.
+- Beobachtung: A/B wirken blass (gelb/oliv außen, weißlich/lavendel innen), weil jede Komponente in zwei weit auseinanderliegenden Filtern leuchtet und sich aus Gegenfarben mischt. C trennt Innen (blau) und Außen (rot-orange) kontrastreich.
+- Entscheidung: C. Sterne in C gelbstichig (beide Breitbandfilter gelb); Variante D (Breitband fast weiß) besprochen, nicht umgesetzt.
