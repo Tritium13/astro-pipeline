@@ -7,19 +7,30 @@ Stand: 30.10.2026 · Nebenprojekt (PhD-Bewerbungen und Bildanalyse-Projekt haben
 Eigene, nachvollziehbare Python-Pipeline: öffentliche JWST-Daten aus MAST → Farbbild.
 Am Ende ein öffentliches GitHub-Repo mit dokumentierten Notebooks.
 
+## Abschluss-Checkliste je Etappe
+
+Eine Etappe ist erst fertig, wenn:
+1. im Notebook die Zellen **Ergebnis** (oben) und **Fazit** (unten) ausgefüllt sind,
+2. `docs/worklog.md` die Befehle/Dateien/Versionen dieser Etappe enthält,
+3. Entscheidungen hier in der Tabelle stehen,
+4. alles committet und gepusht ist.
+
 ## Etappen
 
 ### Etappe 0 – Setup
-- [ ] conda-Umgebung `astro-pipeline` aus `environment.yml` anlegen (nicht `bia`)
-- [ ] Tatsächlich installierte Versionen in `docs/worklog.md` festhalten
-- [ ] Git-Repo initialisieren, erster Commit, GitHub-Remote
-- [ ] Kurztest: `import astropy, astroquery, reproject` im Notebook
+- [x] conda-Umgebung `astro-pipeline` aus `environment.yml` anlegen (nicht `bia`) – 30.10.2026
+- [x] Tatsächlich installierte Versionen in `docs/worklog.md` festhalten
+- [x] Git-Repo initialisieren, erster Commit, GitHub-Remote (privat: Tritium13/astro-pipeline)
+- [x] Kurztest im Notebook `00_setup_check.ipynb`: Importe ok, MAST erreichbar (10 Beobachtungen zu Programm 2733)
+- [x] Ergebnis/Fazit in `00_setup_check.ipynb` nachtragen
 
 ### Etappe 1 – Daten finden und laden (`notebooks/01_query_download.ipynb`)
-- [ ] Mit `astroquery.mast.Observations` nach NGC 3132, Programm 2733, NIRCam suchen
-- [ ] Produktliste auf Stufe 3 (`calib_level=3`) und `_i2d.fits` filtern
-- [ ] Gesamtgröße aus der Spalte `size` berechnen, **bevor** geladen wird
-- [ ] Ein Filter zuerst laden, dann den Rest
+- [x] Mit `astroquery.mast.Observations` nach NGC 3132, Programm 2733, NIRCam suchen
+- [x] Produktliste auf Stufe 3 (`calib_level=3`) und `_i2d.fits` filtern
+- [x] Gesamtgröße aus der Spalte `size` berechnen, **bevor** geladen wird
+- [x] Ein Filter zuerst laden, dann den Rest (6 Dateien, ≈2,49 GB, alle `COMPLETE`)
+- [x] Ergebnis/Fazit in `01_query_download.ipynb` ausgefüllt
+- [ ] Commit + Push
 
 ### Etappe 2 – FITS verstehen (`02_inspect_fits.ipynb`)
 - [ ] Aufbau einer i2d-Datei: Extensions (SCI, ERR, WHT …), Header, Einheiten
@@ -58,10 +69,11 @@ Am Ende ein öffentliches GitHub-Repo mit dokumentierten Notebooks.
 
 | Datum | Entscheidung | Begründung | Status |
 |---|---|---|---|
-| 30.10.2026 | Erstes Objekt: NGC 3132 (Südlicher Ringnebel), nur NIRCam | Planetarischer Nebel, ein Bildfeld statt großem Mosaik; Early-Release-Daten (Programm 2733) seit 2022 öffentlich; offizielle Farbzuordnung als Vergleich veröffentlicht | vorgeschlagen |
-| 30.10.2026 | Einstieg mit Stufe-3-Produkten (`_i2d.fits`) | Schon kalibriert, kombiniert und auf ein Himmelsraster gebracht; die eigene JWST-Kalibrier-Pipeline ist für den Einstieg nicht nötig | vorgeschlagen |
-| 30.10.2026 | Werkzeuge: astropy, astroquery, reproject, matplotlib | Etablierte, gepflegte Pakete aus dem Astropy-Umfeld; über conda-forge verfügbar | vorgeschlagen |
-| 30.10.2026 | Versionen nicht in `environment.yml` pinnen, sondern nach Installation im Worklog festhalten | Neueste kompatible Versionen ziehen, trotzdem reproduzierbar | vorgeschlagen |
+| 30.10.2026 | Erstes Objekt: NGC 3132 (Südlicher Ringnebel), nur NIRCam | Planetarischer Nebel, ein Bildfeld statt großem Mosaik; Early-Release-Daten (Programm 2733) seit 2022 öffentlich; offizielle Farbzuordnung als Vergleich veröffentlicht | angenommen |
+| 30.10.2026 | Einstieg mit Stufe-3-Produkten (`_i2d.fits`) | Schon kalibriert, kombiniert und auf ein Himmelsraster gebracht; die eigene JWST-Kalibrier-Pipeline ist für den Einstieg nicht nötig | angenommen |
+| 30.10.2026 | Werkzeuge: astropy, astroquery, reproject, matplotlib | Etablierte, gepflegte Pakete aus dem Astropy-Umfeld; über conda-forge verfügbar | angenommen |
+| 30.10.2026 | Versionen nicht in `environment.yml` pinnen, sondern nach Installation im Worklog festhalten | Neueste kompatible Versionen ziehen, trotzdem reproduzierbar | angenommen |
+| – | Referenzraster für die Registrierung: SW (0,031″) oder LW (0,063″) | Tendenz: zum Ausprobieren LW (≈4× weniger Pixel, schont 16 GB RAM), fürs finale Bild evtl. SW; Entscheidung in Etappe 3 | offen |
 | – | Streckfunktion | offen (Etappe 4) | offen |
 | – | Farbzuordnung | offen (Etappe 5) | offen |
 
