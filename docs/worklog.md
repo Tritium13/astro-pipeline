@@ -171,3 +171,12 @@ Notebook `notebooks/05_color.ipynb`, Zuordnungen in `params/ngc3132_color.json` 
 - Varianten: A chromatisch (240° → 0° nach Wellenlänge), B NASA-Schlüssel, C physikalisch gruppiert.
 - Beobachtung: A/B wirken blass (gelb/oliv außen, weißlich/lavendel innen), weil jede Komponente in zwei weit auseinanderliegenden Filtern leuchtet und sich aus Gegenfarben mischt. C trennt Innen (blau) und Außen (rot-orange) kontrastreich.
 - Entscheidung: C. Sterne in C gelbstichig (beide Breitbandfilter gelb); Variante D (Breitband fast weiß) besprochen, nicht umgesetzt.
+
+## 30.10.2026 – Etappe 6: Export
+
+Notebook `notebooks/06_export.ipynb`.
+
+- Ausschnitt: Mitte (y, x) = (1570, 1575), 1578 × 1578 px ≈ 1,66′ × 1,66′; gut belichteter Bereich = gültig in allen Filtern + 120 px Randabstand (44,5 % des Rasters).
+- WCS-Check: Norden oben, Osten links.
+- Fehler: `tifffile` → „TIFF strings must be 7-bit ASCII“ (Umlaute in der Beschreibung). Lösung: Beschreibung transliteriert (`str.maketrans`), volle UTF-8-Fassung in PNG und `.md`. Bildunterschrift anschließend auf Englisch umgestellt.
+- Dateien: `output/full_res/ngc3132_nircam_C_physical_16bit.tif` (14,9 MB), `…_full.png` (2,4 MB) – nicht im Git; `output/ngc3132_nircam_C_physical_web.jpg` (0,33 MB), `…_caption.md` – im Git.
