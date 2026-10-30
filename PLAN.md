@@ -44,8 +44,8 @@ Eine Etappe ist erst fertig, wenn:
 - [x] Referenzraster wählen (3127 × 3121 px, 0,063″/px, Norden oben)
 - [x] Alle Filter mit `reproject_adaptive` auf dieses Raster bringen (≈24 s SW, ≈9 s LW pro Filter)
 - [x] Kontrolle: Sterne deckungsgleich (Versatz 0,10–0,24 px; Overlay symmetrisch)
-- [ ] Ergebnis/Fazit in `03_reproject.ipynb` ausgefüllt
-- [ ] Commit + Push
+- [x] Ergebnis/Fazit in `03_reproject.ipynb` ausgefüllt
+- [x] Commit + Push
 
 ### Etappe 4 – Strecken (`04_stretch.ipynb`)
 - [ ] Hintergrund abziehen, Schwarz-/Weißpunkt per Perzentil (Hintergrund in leerer Region messen, nicht übers ganze Bild)
