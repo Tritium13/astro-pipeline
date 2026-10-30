@@ -143,3 +143,22 @@ Notebook `notebooks/03_reproject.ipynb`.
 - Ausgabe: `data/ngc3132_nircam_reproj_lw/ngc3132_<band>_reproj_lw.fits` (Primary = SCI mit WCS + BAND/BUNIT/SRCFILE/REPROJ, Extension FOOTPRINT), ≈39 MB pro Filter.
 - Sternkontrolle (9 Sterne, Zentroid vs. F356W, Median): F090W 0,18 px, F187N 0,15, F212N 0,10, F405N 0,24, F470N 0,20 (1 px = 63 mas).
 - Vorschaubilder zum Ansehen durch Claude liegen in `data/_previews/` (ignoriert von Git, kann gelöscht werden).
+
+## 30.10.2026 – Etappe 4: Hintergrund und Streckung
+
+Notebook `notebooks/04_stretch.ipynb`, Parameter in `params/ngc3132_stretch.json` (im Git), gestreckte Bilder in `data/ngc3132_nircam_stretched/` (nicht im Git).
+
+- Himmelsboxen: 150 × 150 px, ≥150 px vom Rand, Mindestabstand 500 px (erste Version ohne Mindestabstand: alle 6 Boxen in einer Ecke → Ungleichmäßigkeit unterschätzt).
+- Gesättigte Kerne: zuerst schwarz (gemeinsame Gültigkeitsmaske) → Lücken mit `binary_fill_holes` gefunden und mit Maximalwert gefüllt (F090W 396, F187N 257, F212N 209, F356W 509, F405N 245, F470N 162 px).
+- Korrektur einer falschen Begründung: größeres k senkt den Schwarzpunkt → Hintergrund heller, nicht ruhiger. Für verrauschte Filter daher negatives k.
+
+| Band | bkg | noise | spread/noise | k | black | white |
+|---|---|---|---|---|---|---|
+| F090W | 0.2067 | 0.0184 | 1.49 | 0.5 | −0.009 | 18.42 |
+| F187N | 0.0301 | 0.1099 | 3.69 | −1.0 | 0.110 | 57.33 |
+| F212N | −0.0126 | 0.1057 | 2.62 | −1.5 | 0.159 | 43.29 |
+| F356W | 0.1123 | 0.0041 | 3.49 | 1.0 | −0.004 | 8.54 |
+| F405N | 0.1166 | 0.0360 | 0.98 | 1.0 | −0.036 | 34.01 |
+| F470N | 0.4152 | 0.0573 | 2.25 | −0.5 | 0.029 | 54.18 |
+
+(black/white relativ zum abgezogenen Hintergrund, MJy/sr; asinh a = 0,05 für alle.)

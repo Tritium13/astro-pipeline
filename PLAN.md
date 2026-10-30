@@ -48,10 +48,13 @@ Eine Etappe ist erst fertig, wenn:
 - [x] Commit + Push
 
 ### Etappe 4 – Strecken (`04_stretch.ipynb`)
-- [ ] Hintergrund abziehen, Schwarz-/Weißpunkt per Perzentil (Hintergrund in leerer Region messen, nicht übers ganze Bild)
-- [ ] F212N: Hintergrund-Artefakte (Streifen, Detektor-Sprünge) beachten
-- [ ] Linear vs. asinh vs. log vergleichen
-- [ ] Gewählte Parameter pro Filter dokumentieren
+- [x] Hintergrund in 6 verteilten leeren Boxen messen (Mindestabstand 500 px), abziehen; Schwarz-/Weißpunkt festlegen
+- [x] Gesättigte Sternkerne (NaN-Lücken im Bild) gefüllt statt schwarz
+- [x] F187N/F212N: Detektor-Muster mit negativem k im Schwarzpunkt weitgehend versteckt (bekannte Einschränkung)
+- [x] Linear vs. Wurzel vs. log vs. asinh verglichen (F212N)
+- [x] Gewählte Parameter pro Filter dokumentiert (`params/ngc3132_stretch.json`)
+- [ ] Ergebnis/Fazit in `04_stretch.ipynb` ausgefüllt
+- [ ] Commit + Push
 
 ### Etappe 5 – Farbe zuordnen (`05_color.ipynb`)
 - [ ] Chromatische Zuordnung (kurz = blau, lang = rot) als Basis
@@ -81,7 +84,8 @@ Eine Etappe ist erst fertig, wenn:
 | 30.10.2026 | Versionen nicht in `environment.yml` pinnen, sondern nach Installation im Worklog festhalten | Neueste kompatible Versionen ziehen, trotzdem reproduzierbar | angenommen |
 | 30.10.2026 | Referenzraster: neues gemeinsames Raster mit 0,063″/px (LW-Auflösung), Norden oben, TAN, via `find_optimal_celestial_wcs` | Alle 6 Filter haben leicht unterschiedliche Raster und sind gedreht → alle reprojizieren; LW-Auflösung schont RAM (≈4× weniger Pixel) und verliert bei LW nichts; Norden oben = Konvention, Ausschnitt/Drehung fürs Endbild in Etappe 6. SW-Auflösung später als Option fürs finale Bild | angenommen |
 | 30.10.2026 | Reprojektionsmethode: `reproject_adaptive`, `conserve_flux=False` | SW wird um Faktor 2 verkleinert: adaptive Methode mittelt (wie Binning „Average“) statt nur zu interpolieren; Einheit MJy/sr ist Flächenhelligkeit → mitteln, nicht summieren | angenommen |
-| – | Streckfunktion | offen (Etappe 4) | offen |
+| 30.10.2026 | Streckung: asinh (a = 0,05) nach Hintergrundabzug; Schwarzpunkt `bkg − k·noise` (k pro Filter: F090W 0,5; F187N −1; F212N −1,5; F356W 1; F405N 1; F470N −0,5), Weißpunkt 99,9-%-Perzentil pro Filter | asinh: nahe 0 linear (Rauschen ruhig), hell logarithmisch (Stern gebändigt); log hob Detektor-Streifen stark an. Negatives k versteckt die Detektor-Muster in F187N/F212N auf Kosten der schwächsten Struktur. **Ästhetisch:** jeder Filter auf eigenen Weißpunkt normiert → relative Helligkeiten zwischen Filtern gehen verloren | angenommen |
+| 30.10.2026 | Gesättigte Sternkerne: NaN-Lücken innerhalb des Bildes (`binary_fill_holes`) mit dem Maximalwert des Filters füllen | Pipeline setzt gesättigte Pixel auf NaN; ohne Füllung würden Sterne über die gemeinsame Gültigkeitsmaske in allen Filtern schwarz. Kosmetischer Eingriff (≈160–510 px pro Filter) | angenommen |
 | – | Farbzuordnung | offen (Etappe 5) | offen |
 
 ## Referenz: offizielle Zuordnung NGC 3132 (NIRCam)
