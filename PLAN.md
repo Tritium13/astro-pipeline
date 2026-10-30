@@ -30,12 +30,15 @@ Eine Etappe ist erst fertig, wenn:
 - [x] Gesamtgröße aus der Spalte `size` berechnen, **bevor** geladen wird
 - [x] Ein Filter zuerst laden, dann den Rest (6 Dateien, ≈2,49 GB, alle `COMPLETE`)
 - [x] Ergebnis/Fazit in `01_query_download.ipynb` ausgefüllt
-- [ ] Commit + Push
+- [x] Commit + Push
 
 ### Etappe 2 – FITS verstehen (`02_inspect_fits.ipynb`)
-- [ ] Aufbau einer i2d-Datei: Extensions (SCI, ERR, WHT …), Header, Einheiten
-- [ ] WCS (Pixel ↔ Himmelskoordinaten) verstehen
-- [ ] Histogramm, NaN-Ränder, Hintergrund, Dynamikumfang ansehen
+- [x] Aufbau einer i2d-Datei: Extensions (SCI, ERR, WHT …), Header, Einheiten (MJy/sr)
+- [x] WCS (Pixel ↔ Himmelskoordinaten) verstehen (SW 0,0307″, LW 0,063″, Bildfeld ≈2,47′)
+- [x] Histogramm, NaN-Ränder, Hintergrund, Dynamikumfang ansehen
+- [x] Alle 6 Dateien geöffnet (Integritätscheck ok)
+- [ ] Ergebnis/Fazit in `02_inspect_fits.ipynb` ausgefüllt
+- [ ] Commit + Push
 
 ### Etappe 3 – Ausrichten / Registrierung (`03_reproject.ipynb`)
 - [ ] Referenzraster wählen
@@ -73,7 +76,7 @@ Eine Etappe ist erst fertig, wenn:
 | 30.10.2026 | Einstieg mit Stufe-3-Produkten (`_i2d.fits`) | Schon kalibriert, kombiniert und auf ein Himmelsraster gebracht; die eigene JWST-Kalibrier-Pipeline ist für den Einstieg nicht nötig | angenommen |
 | 30.10.2026 | Werkzeuge: astropy, astroquery, reproject, matplotlib | Etablierte, gepflegte Pakete aus dem Astropy-Umfeld; über conda-forge verfügbar | angenommen |
 | 30.10.2026 | Versionen nicht in `environment.yml` pinnen, sondern nach Installation im Worklog festhalten | Neueste kompatible Versionen ziehen, trotzdem reproduzierbar | angenommen |
-| – | Referenzraster für die Registrierung: SW (0,031″) oder LW (0,063″) | Tendenz: zum Ausprobieren LW (≈4× weniger Pixel, schont 16 GB RAM), fürs finale Bild evtl. SW; Entscheidung in Etappe 3 | offen |
+| – | Referenzraster für die Registrierung: SW (0,031″) oder LW (0,063″) | Tendenz: zum Ausprobieren LW (≈4× weniger Pixel, schont 16 GB RAM), fürs finale Bild evtl. SW. Etappe 2: auch Bilder desselben Kanals haben leicht unterschiedliche Raster → alle 6 Filter müssen reprojiziert werden | offen |
 | – | Streckfunktion | offen (Etappe 4) | offen |
 | – | Farbzuordnung | offen (Etappe 5) | offen |
 

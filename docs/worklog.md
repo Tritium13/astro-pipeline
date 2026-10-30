@@ -115,3 +115,21 @@ Speicherort: `data/ngc3132_nircam/` (in `.gitignore`).
 | jw02733-o001_t001_nircam_f444w-f470n_i2d.fits | 155 139 840 |
 
 Hinweis: lokale Größen weichen leicht von der `size`-Spalte der Produktliste ab (siehe Fazit im Notebook).
+
+## 30.10.2026 – Etappe 2: FITS verstehen
+
+Notebook `notebooks/02_inspect_fits.ipynb`.
+
+- Fix: `fits.getheader(path, ext="SCI")` → `ValueError`; richtig ist `extname="SCI"` (oder `ext=("SCI", 1)`).
+- `FITSFixedWarning` (datfix/obsfix) beim Einlesen des WCS: harmlos, astropy ergänzt Standard-Schlüsselwörter im Speicher.
+
+| Band | FILTER | PUPIL | Kanal | Shape | Pixel (″) | t_exp (s) | NaN % | bkg | noise | p99.9 |
+|---|---|---|---|---|---|---|---|---|---|---|
+| F090W | F090W | CLEAR | SHORT | 4894×4916 | 0.0307 | 1460 | 2.1 | 0.231 | 0.083 | 16.1 |
+| F187N | F187N | CLEAR | SHORT | 4894×4917 | 0.0307 | 2319 | 2.1 | 0.250 | 0.486 | 56.8 |
+| F212N | F212N | CLEAR | SHORT | 4895×4916 | 0.0307 | 2319 | 2.2 | 0.375 | 0.857 | 43.3 |
+| F356W | F356W | CLEAR | LONG | 2348×2356 | 0.0630 | 1460 | 2.0 | 0.130 | 0.072 | 8.1 |
+| F405N | F444W | F405N | LONG | 2348×2356 | 0.0630 | 2319 | 2.0 | 0.153 | 0.192 | 34.0 |
+| F470N | F444W | F470N | LONG | 2348×2356 | 0.0630 | 2319 | 2.1 | 0.552 | 0.933 | 54.5 |
+
+Einheit aller SCI-Daten: MJy/sr. bkg/noise = sigma-clipped Median/Std über das ganze Bild (enthält vermutlich schwaches Nebellicht).
