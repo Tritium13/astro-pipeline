@@ -211,3 +211,15 @@ Notebooks `09_miri_ngc6720.ipynb` (Bestandsaufnahme), `09a_combine_nircam_miri_n
 - MIRI-Hintergrund hoch (F1500W ≈ 38 MJy/sr) und ungleichmäßig (spread/noise ≈ 9,8 bei F1500W); 6 Boxen, alle Score > 0.
 - Package: `color.luminance`, `color.apply_luminance` (LRGB), `registration.star_shifts`, `registration.apply_shift`.
 - Export: `output/ngc6720_nircam_miri_W2_ionisation_web.jpg` + caption, `output/ngc6720_nircam_miri_W2s_psf_matched_web.jpg` + caption (Ausschnitt 1338 × 1004 px ≈ 1,40′ × 1,05′).
+
+## 31.10.2026 – Etappe 9, Stufe 2: Skript + Konfiguration
+
+```bash
+python -m astropipe.run configs/ngc3132.toml          # im Projektordner, env astro-pipeline
+python -m astropipe.run configs/ngc3132.toml --no-export
+```
+
+- Neu: `src/astropipe/run.py`, `configs/ngc3132.toml`, `configs/ngc6720.toml`, `notebooks/10_run_configs.ipynb`.
+- Regressionstest: NGC 3132 Streckung (6 Filter) und Farbe C max. |diff| = 0; Ausschnitt (1570, 1575), 1578 px wie Notebook 06. NGC 6720 Streckung (4 Filter) = 0; Ausschnitt (1671, 1608), 1562 × 1172 px wie Notebook 08; gleiche 4 Himmelsboxen.
+- Laufzeit: NGC 3132 8 s (Reprojektion aus dem Terminal-Lauf wiederverwendet), NGC 6720 89 s inkl. lokaler Streifenkorrektur und Reprojektion.
+- Fix: `mast.total_size_gb` gibt bei leerer Liste 0 statt NaN (Warnung „converting a masked element to nan“).

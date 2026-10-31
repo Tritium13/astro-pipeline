@@ -86,8 +86,8 @@ Eine Etappe ist erst fertig, wenn:
 - [x] MIRI ↔ NIRCam: Versatz ≈ 1,25 px (≈ 78 mas) an Sternen gemessen (F560W/F770W) und korrigiert → 0,17–0,26 px (`registration.star_shifts`, `apply_shift`)
 - [x] Drei Versionen verglichen: W1 (wie Wesson et al. Abb. 3), W2 Ionisationsschichten + LRGB (F335M), W2s gleiche Schärfe (Referenz); W2 + W2s exportiert
 - [x] MIRI-Verschiebung in `params/ngc6720_nircam_miri.json` aufnehmen (dy +1,04, dx −0,67 px angewendet)
-- [ ] Ergebnis/Fazit in `09` und `09a` ausgefüllt
-- [ ] Commit + Push
+- [x] Ergebnis/Fazit in `09` und `09a` ausgefüllt
+- [x] Commit + Push
 - [ ] Ideen NGC 3132: Variante D (Breitband fast weiß → weiße Sterne), größerer/anderer Ausschnitt für die äußeren Schalen, Maßstab + Kompass
 
 ### Etappe 8 – Veröffentlichung
@@ -98,7 +98,8 @@ Eine Etappe ist erst fertig, wenn:
 ### Etappe 9 – Automatisierung / „Entdecker-Modus“ (Idee, nach Etappe 7/8)
 Ziel: beliebige passende JWST-Bilddaten mit derselben Pipeline per Skript verarbeiten.
 - [x] Stufe 1: Generalisierung aus Etappe 7 (Funktionen in `src/`, am Ring-Nebel getestet)
-- [ ] Stufe 2: Skript + Konfigurationsdatei pro Objekt (Programm, Filter, Farbvariante A/B/C, Parameter) → jedes Bild per Befehl reproduzierbar
+- [x] Stufe 2: Skript + Konfigurationsdatei pro Objekt (Programm, Filter, Farbvariante A/B/C, Parameter) → jedes Bild per Befehl reproduzierbar: `python -m astropipe.run configs/<name>.toml`; `configs/ngc3132.toml`, `configs/ngc6720.toml`; Regressionstest `10_run_configs.ipynb`: Streckung und Farbe **bitgenau** wie in den Notebooks, Ausschnitte identisch
+- [ ] Stufe 2b (optional): NIRCam + MIRI in der Konfiguration (Instrumentenversatz, LRGB, Schärfe angleichen)
 - [ ] Stufe 3: Entdecker-Modus: MAST nach geeigneten Kandidaten durchsuchen, zufällig wählen, Vorschaubild mit Standardwerten (Variante A) + Kurzbericht; Favoriten von Hand verfeinern
 - Vorab-Filter: nur Bildgebung, ≥ 3 Filter, öffentlich, Stufe 3, überlappende Bildfelder, Größengrenze (RAM 16 GB)
 - Erkenntnisse aus NGC 6720: Box-Suche soll Boxen mit negativem Score automatisch verwerfen (Detektor-Artefakte); wenn das Objekt das Feld füllt, gibt es keinen leeren Himmel → Hintergrund relativ, Streifenkorrektur mit lokalem Modell; Detektor-Blöcke (2D-Helligkeitsstufen) wären der nächste Schritt; Notebooks vor dem Ergebnis immer per „Restart & Run All“ prüfen (Zustandsfehler bei `boxes`)
@@ -124,6 +125,7 @@ Ziel: beliebige passende JWST-Bilddaten mit derselben Pipeline per Skript verarb
 | 31.10.2026 | NGC 6720 Ausschnitt: Querformat 4:3 (`largest_rect`) | Gültiger Bereich ist eine Raute (≈45° gedreht); Ring liegt quer → Querformat zeigt mehr vom Ring als ein Quadrat (1,64′ × 1,23′ statt 1,31′ × 1,31′) | angenommen |
 | 31.10.2026 | NIRCam + MIRI: MIRI auf das NIRCam-Raster (0,063″) **hochgerechnet**, Versatz zwischen den Instrumenten an Sternen korrigiert | Feine Struktur von NIRCam bleibt erhalten; hochrechnen erzeugt keine neuen Details – ästhetische Entscheidung, offen dokumentiert. Versatz bei F560W/F770W gleich gerichtet (dy −1,05, dx +0,66 px) → echter Instrumentenversatz; F1500W-Messung zu unsicher, gemeinsames Raster → gleiche Verschiebung | angenommen |
 | 31.10.2026 | NIRCam + MIRI Farbe: **W2 – Ionisationsschichten** (F1500W [Ne III] 230° blau, F162M 190° hellblau, F212N H₂ 25° orange, F770W 0° rot), 50 % Helligkeit aus F335M (LRGB); dazu **W2s** als Referenz mit gleicher Schärfe (Gauß auf FWHM von F1500W ≈ 0,49″) | W2 zeigt die Schichtung von hoch ionisiert (innen) bis molekular (außen) am deutlichsten; W2s belegt, dass die Farbverteilung auch bei ehrlicher Auflösung gleich ist und die Schärfe aus NIRCam stammt. Filterinhalte nach Wesson et al. 2024; NIRCam-FWHM Näherungen | angenommen |
+| 31.10.2026 | Konfiguration als TOML (`configs/*.toml`), Ausführung `python -m astropipe.run`; Zwischenergebnisse in `data/<name>_run/`, Bilder in `output/runs/`, Protokoll `params/<name>_run.json` | TOML ist ab Python 3.11 eingebaut (`tomllib`), gut lesbar, kommentierbar; getrennte Ordner lassen Notebook-Ergebnisse unangetastet und vergleichbar | angenommen |
 | – | Repo-Sprache: komplett Englisch? | am Ende (Etappe 8) entscheiden | offen |
 | 30.10.2026 | Gesättigte Sternkerne: NaN-Lücken innerhalb des Bildes (`binary_fill_holes`) mit dem Maximalwert des Filters füllen | Pipeline setzt gesättigte Pixel auf NaN; ohne Füllung würden Sterne über die gemeinsame Gültigkeitsmaske in allen Filtern schwarz. Kosmetischer Eingriff (≈160–510 px pro Filter) | angenommen |
 | 30.10.2026 | Farbzuordnung: **C – physikalisch gruppiert** (F187N 200°, F405N 225° → Blau/Cyan, ionisiertes Gas; F212N 20°, F470N 0° → Orange/Rot, molekularer Wasserstoff; F090W 55°, F356W 40° → Gelb, Breitband/Sterne), alle Gewichte 1 | Größter Kontrast zwischen innerer Blase und äußeren Schalen: jede physikalische Komponente bleibt in einer Farbfamilie, statt sich wie bei A/B aus Gegenfarben zu blassen Tönen zu mischen. Sieht dem veröffentlichten NASA-Bild am ähnlichsten. **Frei gewählt, nicht chromatisch**; bekannte Folge: Sterne gelbstichig. A und B bleiben in `params/ngc3132_color.json` dokumentiert | angenommen |

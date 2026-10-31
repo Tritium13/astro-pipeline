@@ -1,0 +1,73 @@
+# Ring Nebula – NIRCam only, as in notebooks 08/08b (variant C, local destriping)
+[run]
+name = "ngc6720"
+
+[data]
+program = 1558
+instrument = "NIRCAM/IMAGE"
+raw_dir = "ngc6720_nircam"
+obs = "-o005_"                       # only this observation
+bands = ["F162M", "F212N", "F300M", "F335M"]
+max_gb = 5.0
+
+[clean]
+method = "local"                     # local background model, notebook 08b
+bands = ["F162M", "F212N", "F300M", "F335M"]
+block = 16
+smooth = 51
+segment = 512
+
+[grid]
+resolution_arcsec = 0.063
+
+[background]
+box = 150
+edge_margin = 150
+n_boxes = 6
+min_sep = 500
+drop_negative = true
+
+[stretch]
+black_k = 0.5
+white_pct = 99.9
+a = 0.05
+
+[stretch.bands]
+F162M = { black_k = -1.0 }
+F212N = { black_k = -2.0 }
+
+[color.A_chromatic]
+mode = "chromatic"
+label = "hues by wavelength, 240° to 0°"
+
+[color.B_nasa]
+label = "hues as in the NASA colour key (chromatic)"
+hue_deg = { F162M = 240, F212N = 180, F300M = 120, F335M = 0 }
+
+[color.C_physical]
+label = "chosen freely, grouped by physical origin, not by wavelength"
+hue_deg = { F162M = 210, F212N = 15, F300M = 60, F335M = 40 }
+
+[export]
+variants = ["C_physical"]
+center_band = "F335M"
+margin = 120
+aspect = 1.3333333333
+
+[caption]
+title = "Ring Nebula (NGC 6720, M57) – JWST NIRCam"
+description = "Planetary nebula in the constellation Lyra, observed with NIRCam on the James Webb Space Telescope (Cycle 1 GO programme 1558, PI M. Barlow)."
+filter_source = "Filter contents follow Wesson et al. 2024 (MNRAS; arXiv:2308.09027, Table 1), estimated for part of the bright ring."
+credits = "Data: NASA, ESA, CSA, STScI (programme 1558, PI M. Barlow), retrieved via MAST. Processing: Tritium13."
+
+[caption.colour_names.C_physical]
+F162M = "blue"
+F212N = "orange-red"
+F300M = "yellow"
+F335M = "gold"
+
+[caption.filter_content]
+F162M = "mainly continuum, presumably free-free emission from ionised gas, plus hydrogen recombination lines"
+F212N = "mainly molecular hydrogen (H2)"
+F300M = "continuum, H2 and hydrogen lines (mixed)"
+F335M = "continuum and H2, plus the 3.3 µm PAH band (mixed)"

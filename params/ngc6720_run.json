@@ -1,0 +1,167 @@
+{
+  "config": "configs/ngc6720.toml",
+  "astropipe": "0.1.0",
+  "files": {
+    "F162M": "jw01558-o005_t001_nircam_f150w2-f162m_i2d.fits",
+    "F212N": "jw01558-o005_t001_nircam_clear-f212n_i2d.fits",
+    "F300M": "jw01558-o005_t001_nircam_clear-f300m_i2d.fits",
+    "F335M": "jw01558-o005_t001_nircam_clear-f335m_i2d.fits"
+  },
+  "clean": {
+    "method": "local",
+    "bands": [
+      "F162M",
+      "F212N",
+      "F300M",
+      "F335M"
+    ],
+    "block": 16,
+    "smooth": 51,
+    "segment": 512
+  },
+  "star_offsets_px": {
+    "F162M": 0.16196703805199203,
+    "F212N": 0.04748700081246847,
+    "F300M": 0.024262361532919906,
+    "F335M": 0.0
+  },
+  "stretch": {
+    "saturated_holes_filled_px": {
+      "F162M": 146,
+      "F212N": 51,
+      "F300M": 95,
+      "F335M": 85
+    },
+    "sky_boxes": {
+      "size_px": 150,
+      "yx": [
+        [
+          1125,
+          2325
+        ],
+        [
+          2100,
+          2175
+        ],
+        [
+          450,
+          1575
+        ],
+        [
+          2400,
+          1125
+        ]
+      ],
+      "scores": [
+        -0.07341371476650238,
+        -0.003809753805398941,
+        0.0033032409846782684,
+        0.018148131668567657,
+        0.03542030602693558,
+        0.047503527253866196
+      ]
+    },
+    "per_band": {
+      "F162M": {
+        "black_k": -1.0,
+        "white_pct": 99.9,
+        "a": 0.05,
+        "bkg": -0.02113441936671734,
+        "noise": 0.0978478416800499,
+        "spread": 0.05389026179909706,
+        "black": 0.0978478416800499,
+        "white": 10.093406677246094
+      },
+      "F212N": {
+        "black_k": -2.0,
+        "white_pct": 99.9,
+        "a": 0.05,
+        "bkg": -0.6550019383430481,
+        "noise": 0.8518220782279968,
+        "spread": 1.0022140741348267,
+        "black": 1.7036441564559937,
+        "white": 34.04424285888672
+      },
+      "F300M": {
+        "black_k": 0.5,
+        "white_pct": 99.9,
+        "a": 0.05,
+        "bkg": 0.12734615802764893,
+        "noise": 0.03268708288669586,
+        "spread": 0.05893059819936752,
+        "black": -0.01634354144334793,
+        "white": 5.924696445465088
+      },
+      "F335M": {
+        "black_k": 0.5,
+        "white_pct": 99.9,
+        "a": 0.05,
+        "bkg": 0.19292902946472168,
+        "noise": 0.0448991134762764,
+        "spread": 0.10528802871704102,
+        "black": -0.0224495567381382,
+        "white": 7.348632335662842
+      }
+    }
+  },
+  "colour": {
+    "A_chromatic": {
+      "hue_deg": {
+        "F162M": 240.0,
+        "F212N": 160.0,
+        "F300M": 80.0,
+        "F335M": 0.0
+      },
+      "saturation": {},
+      "weights": {},
+      "luminance": null
+    },
+    "B_nasa": {
+      "hue_deg": {
+        "F162M": 240,
+        "F212N": 180,
+        "F300M": 120,
+        "F335M": 0
+      },
+      "saturation": {},
+      "weights": {},
+      "luminance": null
+    },
+    "C_physical": {
+      "hue_deg": {
+        "F162M": 210,
+        "F212N": 15,
+        "F300M": 60,
+        "F335M": 40
+      },
+      "saturation": {},
+      "weights": {},
+      "luminance": null
+    }
+  },
+  "export": {
+    "center_yx": [
+      1671,
+      1608
+    ],
+    "half_hw": [
+      586,
+      781
+    ],
+    "size_arcmin": [
+      1.6401000000000001,
+      1.2306
+    ],
+    "north_up": true,
+    "east_left": true,
+    "files": {
+      "C_physical": [
+        "../output/full_res/ngc6720_C_physical_16bit.tif",
+        "../output/full_res/ngc6720_C_physical_full.png",
+        "../output/runs/ngc6720_C_physical_web.jpg",
+        "../output/runs/ngc6720_C_physical_caption.md"
+      ]
+    }
+  },
+  "runtime_s": 89.1
+}

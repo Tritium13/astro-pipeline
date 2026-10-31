@@ -1,0 +1,74 @@
+# Southern Ring Nebula – NIRCam, as in notebooks 01–06 (variant C)
+[run]
+name = "ngc3132"
+
+[data]
+program = 2733
+instrument = "NIRCAM/IMAGE"
+raw_dir = "ngc3132_nircam"           # data/<raw_dir>, already downloaded files are reused
+bands = ["F090W", "F187N", "F212N", "F356W", "F405N", "F470N"]
+max_gb = 5.0
+
+[clean]
+method = "none"                      # "none" | "sky" (08a) | "local" (08b)
+
+[grid]
+resolution_arcsec = 0.063
+
+[background]
+box = 150
+edge_margin = 150
+n_boxes = 6
+min_sep = 500
+drop_negative = true                 # negative score = detector artefact
+
+[stretch]                            # defaults for all bands, overrides below
+black_k = 1.0
+white_pct = 99.9
+a = 0.05
+
+[stretch.bands]
+F090W = { black_k = 0.5 }
+F187N = { black_k = -1.0 }
+F212N = { black_k = -1.5 }
+F470N = { black_k = -0.5 }
+
+[color.A_chromatic]
+mode = "chromatic"
+label = "hues by wavelength, 240° to 0°"
+
+[color.B_nasa]
+label = "hues as in the NASA colour key"
+hue_deg = { F090W = 240, F187N = 180, F212N = 120, F356W = 60, F405N = 0, F470N = 0 }
+
+[color.C_physical]
+label = "chosen freely, grouped by physical origin, not by wavelength"
+hue_deg = { F090W = 55, F356W = 40, F187N = 200, F405N = 225, F212N = 20, F470N = 0 }
+
+[export]
+variants = ["C_physical"]
+center_band = "F405N"
+margin = 120
+aspect = 1.0
+
+[caption]
+title = "Southern Ring Nebula (NGC 3132) – JWST NIRCam"
+description = "Planetary nebula in the constellation Vela, observed on 3 June 2022 with NIRCam on the James Webb Space Telescope (Early Release Observations, programme 2733)."
+filter_source = "Line identifications are approximate (to be checked against the JWST documentation)."
+credits = "Data: NASA, ESA, CSA, STScI (JWST Early Release Observations, programme 2733), retrieved via MAST. Processing: Tritium13."
+
+[caption.colour_names.C_physical]
+F090W = "yellow"
+F356W = "yellow-orange"
+F187N = "light blue"
+F405N = "blue"
+F212N = "orange"
+F470N = "red"
+
+[caption.filter_content]
+F090W = "broadband: stars, scattered light"
+F356W = "broadband: stars, nebula"
+F187N = "ionised hydrogen (Paschen-α)"
+F405N = "ionised hydrogen (Brackett-α)"
+F212N = "molecular hydrogen (H2)"
+F470N = "molecular hydrogen (H2)"

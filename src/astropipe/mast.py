@@ -25,6 +25,8 @@ def find_i2d(program, instrument="NIRCAM/IMAGE"):
 
 
 def total_size_gb(products) -> float:
+    if len(products) == 0:
+        return 0.0
     return float(products["size"].sum()) / 1e9
 
 
