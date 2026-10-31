@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "astropipe"
+version = "0.1.0"
+description = "Reproducible colour images from public JWST data (MAST i2d products)"
+requires-python = ">=3.11"
+# Dependencies are managed by the conda environment (environment.yml).
+dependencies = []
+
+[tool.setuptools.packages.find]
+where = ["src"]
