@@ -103,3 +103,40 @@ def star_offsets(images, ref_band, num_peaks=12, min_distance=40, exclude_border
             if c is not None:
                 offsets[b].append(float(np.hypot(c[0] - c_ref[0], c[1] - c_ref[1])))
     return offsets
+
+
+def star_shifts(images, ref_band, num_peaks=12, min_distance=40, exclude_border=60, half=5):
+    """Signed centroid offsets (dy, dx) in px of bright stars, band minus `ref_band`.
+
+    Returns dict band -> array of shape (n_stars, 2). A consistent median with
+    small scatter indicates a real registration shift (e.g. between instruments).
+    """
+    from skimage.feature import peak_local_max
+    ref = np.nan_to_num(images[ref_band], nan=0.0)
+    peaks = peak_local_max(ref, min_distance=min_distance, num_peaks=num_peaks,
+                           exclude_border=exclude_border)
+    out = {b: [] for b in images}
+    for y, x in peaks:
+        c_ref = _centroid(images[ref_band], y, x, half)
+        if c_ref is None:
+            continue
+        for b, img in images.items():
+            c = _centroid(img, y, x, half)
+            if c is not None:
+                out[b].append((c[0] - c_ref[0], c[1] - c_ref[1]))
+    return {b: np.array(v).reshape(-1, 2) for b, v in out.items()}
+
+
+def apply_shift(img, dy, dx):
+    """Shift an image by (dy, dx) px (bilinear), keeping NaN regions as NaN.
+
+    To align a band whose stars sit at +offset relative to the reference,
+    call apply_shift(img, -dy, -dx).
+    """
+    from scipy.ndimage import shift as nd_shift
+    valid = np.isfinite(img)
+    data = nd_shift(np.where(valid, img, 0).astype(np.float32), (dy, dx), order=1, mode="constant", cval=0.0)
+    w = nd_shift(valid.astype(np.float32), (dy, dx), order=1, mode="constant", cval=0.0)
+    with np.errstate(invalid="ignore", divide="ignore"):
+        out = data / w
+    return np.where(w > 0.99, out, np.nan).astype(np.float32)

@@ -200,3 +200,14 @@ Notebooks `08_ngc6720.ipynb`, `08a_destripe_ngc6720.ipynb`, `08b_destripe_local_
 - Streifen: in i2d entlang der Zeilen (Zeilen/Spalten 2,1–3,5). 08a: leerer Himmel, ganze Zeile → kaum Wirkung; 512-px-Abschnitte → −30 % (pro 128-px-Block), aber Abschnitte im Nebel unkorrigiert → blaue F162M-Streifen im Innenraum. 08b: lokales Modell (16-px-Medianzellen; Testbild: Fehler 0,14 vs. 0,44 alt) → flächige Korrektur auch im Nebel; Kennzahl (lokaler Rest) F162M 0,088 → 0,072 (alt) → 0,065 (neu), F212N 0,770 → 0,630 → 0,578.
 - Download-Schutz: `mast.download` lädt nur fehlende Dateien (Größenvergleich, 1 % Toleranz).
 - Export: Variante C, Querformat 4:3, Mitte (1671, 1608), 1562 × 1172 px ≈ 1,64′ × 1,23′; `output/ngc6720_nircam_C_physical_web.jpg` + `_caption.md`.
+
+## 31.10.2026 – NIRCam + MIRI (NGC 6720)
+
+Notebooks `09_miri_ngc6720.ipynb` (Bestandsaufnahme), `09a_combine_nircam_miri_ngc6720.ipynb` (Kombination); Parameter `params/ngc6720_nircam_miri.json`.
+
+- MAST MIRI/IMAGE Programm 1558: 18 i2d. o001 = Hauptmosaik, 9 Filter (F560W–F2550W), 444 s, je 48 MB, alle auf einem Raster (1043 × 1644 px, 0,111″/px). o002/o004 = Simultanaufnahmen während MRS (3 Filter, Teilbereiche), o003 = MRS-OFF (Hintergrundposition ≈ 5,5′ abseits). Geladen nur o001 (0,43 GB).
+- Überlappung NIRCam ∩ MIRI enthält den ganzen Ring; gültig in allen 7 Filtern: 35,9 % des Rasters. Abgesetztes Rechteck oben links in MIRI vermutlich Koronografenfeld (fällt weg).
+- MIRI auf NIRCam-Raster hochgerechnet (`reproject_adaptive`). Versatz gegen F335M: F560W −1,06/+0,67 px, F770W −1,03/+0,65 px (dy/dx), F1500W unsicher (Streuung ≈ 2 px). Gemeinsame Verschiebung aus F560W+F770W → danach 0,17/0,26 px.
+- MIRI-Hintergrund hoch (F1500W ≈ 38 MJy/sr) und ungleichmäßig (spread/noise ≈ 9,8 bei F1500W); 6 Boxen, alle Score > 0.
+- Package: `color.luminance`, `color.apply_luminance` (LRGB), `registration.star_shifts`, `registration.apply_shift`.
+- Export: `output/ngc6720_nircam_miri_W2_ionisation_web.jpg` + caption, `output/ngc6720_nircam_miri_W2s_psf_matched_web.jpg` + caption (Ausschnitt 1338 × 1004 px ≈ 1,40′ × 1,05′).

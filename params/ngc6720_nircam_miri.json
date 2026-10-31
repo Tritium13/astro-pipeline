@@ -1,0 +1,133 @@
+{
+  "nircam": {
+    "reproj": "../data/ngc6720_nircam_reproj_lw",
+    "prefix": "ngc6720_lw_dsl",
+    "stretched": "../data/ngc6720_nircam_stretched",
+    "stretch_params": "params/ngc6720_stretch.json"
+  },
+  "miri": {
+    "files": {
+      "F560W": "jw01558-o001_t001_miri_f560w_i2d.fits",
+      "F770W": "jw01558-o001_t001_miri_f770w_i2d.fits",
+      "F1500W": "jw01558-o001_t001_miri_f1500w_i2d.fits"
+    },
+    "reproj": "../data/ngc6720_miri_reproj_lw",
+    "note": "upsampled 0.111 -> 0.063 arcsec/px with reproject_adaptive (no new detail)",
+    "saturated_holes_filled_px": {
+      "F560W": 1642,
+      "F770W": 1642,
+      "F1500W": 2066
+    },
+    "sky_boxes": {
+      "size_px": 120,
+      "edge_margin_px": 80,
+      "min_sep_px": 350,
+      "rule": "score > 0",
+      "yx": [
+        [
+          1860,
+          540
+        ],
+        [
+          480,
+          1620
+        ],
+        [
+          2580,
+          1620
+        ],
+        [
+          1440,
+          2640
+        ],
+        [
+          2160,
+          780
+        ],
+        [
+          720,
+          1920
+        ]
+      ]
+    },
+    "per_band": {
+      "F560W": {
+        "black_k": 0.5,
+        "white_pct": 99.9,
+        "a": 0.05,
+        "bkg": 1.4488334655761719,
+        "noise": 0.0818115621805191,
+        "spread": 0.19244599342346191,
+        "black": -0.04090578109025955,
+        "white": 9.369379997253418
+      },
+      "F770W": {
+        "black_k": 0.5,
+        "white_pct": 99.9,
+        "a": 0.05,
+        "bkg": 4.249006748199463,
+        "noise": 0.1016298308968544,
+        "spread": 0.2529010772705078,
+        "black": -0.0508149154484272,
+        "white": 20.10518455505371
+      },
+      "F1500W": {
+        "black_k": 0.5,
+        "white_pct": 99.9,
+        "a": 0.05,
+        "bkg": 38.40582275390625,
+        "noise": 0.10562717914581299,
+        "spread": 1.0397262573242188,
+        "black": -0.052813589572906494,
+        "white": 183.81512451171875
+      }
+    },
+    "shift_px_applied": {
+      "dy": 1.0434328775692165,
+      "dx": -0.6682726263582026,
+      "measured_on": [
+        "F560W",
+        "F770W"
+      ],
+      "method": "registration.star_shifts vs F335M, median; registration.apply_shift"
+    }
+  },
+  "variants": {
+    "W1_wesson": {
+      "hue_deg": {
+        "F300M": 240,
+        "F560W": 120,
+        "F770W": 0
+      },
+      "weights": {}
+    },
+    "W2_ionisation": {
+      "hue_deg": {
+        "F1500W": 230,
+        "F162M": 190,
+        "F212N": 25,
+        "F770W": 0
+      },
+      "weights": {}
+    }
+  },
+  "W2_luminance": {
+    "band": "F335M",
+    "mix": 0.5,
+    "method": "astropipe.color.apply_luminance (Rec.709)"
+  },
+  "W2s_psf_matched": {
+    "target_fwhm_arcsec": 0.488,
+    "fwhm_arcsec": {
+      "F162M": 0.055,
+      "F212N": 0.072,
+      "F300M": 0.1,
+      "F335M": 0.11,
+      "F560W": 0.207,
+      "F770W": 0.269,
+      "F1500W": 0.488
+    },
+    "note": "Gaussian on linear images; NIRCam FWHM approximate",
+    "luminance": null
+  }
+}

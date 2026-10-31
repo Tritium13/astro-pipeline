@@ -1,6 +1,6 @@
 # Planung: Astro-Pipeline
 
-Stand: 30.10.2026 · Nebenprojekt (PhD-Bewerbungen und Bildanalyse-Projekt haben Vorrang)
+Stand: 31.10.2026 · Nebenprojekt (PhD-Bewerbungen und Bildanalyse-Projekt haben Vorrang)
 
 ## Ziel
 
@@ -77,12 +77,17 @@ Eine Etappe ist erst fertig, wenn:
 - [x] Ring-Nebel NGC 6720 (Programm 1558, NIRCam F162M/F212N/F300M/F335M) mit dem Paket (`08_ngc6720.ipynb`), exportiert (Variante C, Querformat 4:3, 1,64′ × 1,23′)
 - [x] Streifenkorrektur: `08a` (leerer Himmel, 512-px-Abschnitte) → `08b` (lokales Hintergrundmodell, 16-px-Zellen) – im Nebel deutlich wirksamer; Reststreifen und Detektor-Blöcke bleiben
 - [x] Paket erweitert: `clean` (destripe, destripe_local), `mast.download` überspringt vorhandene Dateien, `export.largest_rect`
-- [ ] Ergebnis/Fazit in `08`, `08a`, `08b` ausgefüllt
-- [ ] Commit + Push
+- [x] Ergebnis/Fazit in `08`, `08a`, `08b` ausgefüllt
+- [x] Commit + Push
 - [x] Wiederverwendbare Funktionen in `src/astropipe/` ausgelagert (bands, mast, registration, stretch, color, export), `pip install -e .`
 - [x] Regressionstest NGC 3132 (`07_regression_ngc3132.ipynb`): alles bitgenau, Farbe 1,5e-5 (gerundete RGB in JSON)
 - [x] Farben künftig als Farbwinkel + Sättigung speichern (exakt reproduzierbar) – ab NGC 6720 umgesetzt
-- [ ] Optional: NIRCam + MIRI kombinieren
+- [x] Optional: NIRCam + MIRI kombinieren (NGC 6720): Bestandsaufnahme `09_miri_ngc6720.ipynb` (Hauptmosaik o001, 9 Filter, 0,43 GB), Kombination `09a_combine_nircam_miri_ngc6720.ipynb`
+- [x] MIRI ↔ NIRCam: Versatz ≈ 1,25 px (≈ 78 mas) an Sternen gemessen (F560W/F770W) und korrigiert → 0,17–0,26 px (`registration.star_shifts`, `apply_shift`)
+- [x] Drei Versionen verglichen: W1 (wie Wesson et al. Abb. 3), W2 Ionisationsschichten + LRGB (F335M), W2s gleiche Schärfe (Referenz); W2 + W2s exportiert
+- [x] MIRI-Verschiebung in `params/ngc6720_nircam_miri.json` aufnehmen (dy +1,04, dx −0,67 px angewendet)
+- [ ] Ergebnis/Fazit in `09` und `09a` ausgefüllt
+- [ ] Commit + Push
 - [ ] Ideen NGC 3132: Variante D (Breitband fast weiß → weiße Sterne), größerer/anderer Ausschnitt für die äußeren Schalen, Maßstab + Kompass
 
 ### Etappe 8 – Veröffentlichung
@@ -92,7 +97,7 @@ Eine Etappe ist erst fertig, wenn:
 
 ### Etappe 9 – Automatisierung / „Entdecker-Modus“ (Idee, nach Etappe 7/8)
 Ziel: beliebige passende JWST-Bilddaten mit derselben Pipeline per Skript verarbeiten.
-- [ ] Stufe 1: Generalisierung aus Etappe 7 (Funktionen in `src/`, am Ring-Nebel getestet)
+- [x] Stufe 1: Generalisierung aus Etappe 7 (Funktionen in `src/`, am Ring-Nebel getestet)
 - [ ] Stufe 2: Skript + Konfigurationsdatei pro Objekt (Programm, Filter, Farbvariante A/B/C, Parameter) → jedes Bild per Befehl reproduzierbar
 - [ ] Stufe 3: Entdecker-Modus: MAST nach geeigneten Kandidaten durchsuchen, zufällig wählen, Vorschaubild mit Standardwerten (Variante A) + Kurzbericht; Favoriten von Hand verfeinern
 - Vorab-Filter: nur Bildgebung, ≥ 3 Filter, öffentlich, Stufe 3, überlappende Bildfelder, Größengrenze (RAM 16 GB)
@@ -117,6 +122,8 @@ Ziel: beliebige passende JWST-Bilddaten mit derselben Pipeline per Skript verarb
 | 31.10.2026 | NGC 6720: Himmelsboxen mit negativem Score verwerfen (4 von 6 genutzt); Hintergrund ist relativ (Halo füllt das Feld) | Negative Scores = Detektorbänder, kein leerer Himmel | angenommen |
 | 31.10.2026 | NGC 6720 Farbe: C – physikalisch gruppiert (F162M 210° blau = ionisiertes Gas; F212N 15° orange-rot = H₂; F300M 60° gelb, F335M 40° gold = gemischt, F335M mit PAH), Gewichte 1 | Filterinhalte nach Wesson et al. 2024, Tab. 1 (arXiv:2308.09027); A und B (beide chromatisch) fast identisch und blasser | angenommen |
 | 31.10.2026 | NGC 6720 Ausschnitt: Querformat 4:3 (`largest_rect`) | Gültiger Bereich ist eine Raute (≈45° gedreht); Ring liegt quer → Querformat zeigt mehr vom Ring als ein Quadrat (1,64′ × 1,23′ statt 1,31′ × 1,31′) | angenommen |
+| 31.10.2026 | NIRCam + MIRI: MIRI auf das NIRCam-Raster (0,063″) **hochgerechnet**, Versatz zwischen den Instrumenten an Sternen korrigiert | Feine Struktur von NIRCam bleibt erhalten; hochrechnen erzeugt keine neuen Details – ästhetische Entscheidung, offen dokumentiert. Versatz bei F560W/F770W gleich gerichtet (dy −1,05, dx +0,66 px) → echter Instrumentenversatz; F1500W-Messung zu unsicher, gemeinsames Raster → gleiche Verschiebung | angenommen |
+| 31.10.2026 | NIRCam + MIRI Farbe: **W2 – Ionisationsschichten** (F1500W [Ne III] 230° blau, F162M 190° hellblau, F212N H₂ 25° orange, F770W 0° rot), 50 % Helligkeit aus F335M (LRGB); dazu **W2s** als Referenz mit gleicher Schärfe (Gauß auf FWHM von F1500W ≈ 0,49″) | W2 zeigt die Schichtung von hoch ionisiert (innen) bis molekular (außen) am deutlichsten; W2s belegt, dass die Farbverteilung auch bei ehrlicher Auflösung gleich ist und die Schärfe aus NIRCam stammt. Filterinhalte nach Wesson et al. 2024; NIRCam-FWHM Näherungen | angenommen |
 | – | Repo-Sprache: komplett Englisch? | am Ende (Etappe 8) entscheiden | offen |
 | 30.10.2026 | Gesättigte Sternkerne: NaN-Lücken innerhalb des Bildes (`binary_fill_holes`) mit dem Maximalwert des Filters füllen | Pipeline setzt gesättigte Pixel auf NaN; ohne Füllung würden Sterne über die gemeinsame Gültigkeitsmaske in allen Filtern schwarz. Kosmetischer Eingriff (≈160–510 px pro Filter) | angenommen |
 | 30.10.2026 | Farbzuordnung: **C – physikalisch gruppiert** (F187N 200°, F405N 225° → Blau/Cyan, ionisiertes Gas; F212N 20°, F470N 0° → Orange/Rot, molekularer Wasserstoff; F090W 55°, F356W 40° → Gelb, Breitband/Sterne), alle Gewichte 1 | Größter Kontrast zwischen innerer Blase und äußeren Schalen: jede physikalische Komponente bleibt in einer Farbfamilie, statt sich wie bei A/B aus Gegenfarben zu blassen Tönen zu mischen. Sieht dem veröffentlichten NASA-Bild am ähnlichsten. **Frei gewählt, nicht chromatisch**; bekannte Folge: Sterne gelbstichig. A und B bleiben in `params/ngc3132_color.json` dokumentiert | angenommen |

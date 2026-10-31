@@ -40,3 +40,24 @@ def compose(images, mapping, weights=None):
         num += w * images[b][..., None] * np.asarray(col, np.float32)
         den += w * np.asarray(col, np.float32)
     return np.clip(num / np.maximum(den, 1e-6), 0, 1)
+
+
+def luminance(rgb):
+    """Perceived brightness (Rec. 709 weights)."""
+    return 0.2126 * rgb[..., 0] + 0.7152 * rgb[..., 1] + 0.0722 * rgb[..., 2]
+
+
+def apply_luminance(rgb, lum_img, mix=0.5):
+    """LRGB: replace part of the brightness of `rgb` by a (sharper) luminance image.
+
+    target = (1 - mix) * luminance(rgb) + mix * lum_img; colours (hue/saturation)
+    stay, only brightness changes. mix=0 -> unchanged, mix=1 -> brightness fully
+    from lum_img. Aesthetic technique: sharp detail from one filter, colour from
+    others (which may be blurrier). Very saturated colours (e.g. pure blue) cannot
+    become arbitrarily bright: where a channel would exceed 1 it is clipped and
+    the hue shifts slightly.
+    """
+    lum = luminance(rgb)
+    target = (1 - mix) * lum + mix * lum_img
+    scale = target / np.maximum(lum, 1e-6)
+    return np.clip(rgb * scale[..., None], 0, 1).astype(np.float32)
