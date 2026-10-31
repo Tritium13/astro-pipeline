@@ -180,3 +180,23 @@ Notebook `notebooks/06_export.ipynb`.
 - WCS-Check: Norden oben, Osten links.
 - Fehler: `tifffile` → „TIFF strings must be 7-bit ASCII“ (Umlaute in der Beschreibung). Lösung: Beschreibung transliteriert (`str.maketrans`), volle UTF-8-Fassung in PNG und `.md`. Bildunterschrift anschließend auf Englisch umgestellt.
 - Dateien: `output/full_res/ngc3132_nircam_C_physical_16bit.tif` (14,9 MB), `…_full.png` (2,4 MB) – nicht im Git; `output/ngc3132_nircam_C_physical_web.jpg` (0,33 MB), `…_caption.md` – im Git.
+
+## 31.10.2026 – Etappe 7a: Paket + Regressionstest
+
+```bash
+pip install -e . --no-deps    # in env astro-pipeline, im Projektordner
+```
+
+- `src/astropipe/` (bands, mast, registration, stretch, color, export), `pyproject.toml`; `.gitignore` um `*.egg-info/`, `build/` ergänzt.
+- `notebooks/07_regression_ngc3132.ipynb`: Zielraster, F356W-Reprojektion, Lücken, Boxen, Hintergrund, Streckung bitgenau; Farbe C max. 1,46e-5 (RGB in JSON auf 4 Stellen gerundet).
+
+## 31.10.2026 – Etappe 7b: NGC 6720 (Ring-Nebel)
+
+Notebooks `08_ngc6720.ipynb`, `08a_destripe_ngc6720.ipynb`, `08b_destripe_local_ngc6720.ipynb`; Parameter `params/ngc6720_stretch.json`, `params/ngc6720_color.json`.
+
+- MAST: Programm 1558, 4 i2d (F150W2;F162M, F212N, F300M, F335M), alle `o005`, 483 s, 1,79 GB.
+- Registrierung: Raster 3311 × 3312 px (≈45° gedreht, 46,6 % gültig); Versatz 0,02–0,16 px.
+- Himmelsboxen: Box 0 (Score −0,074, dunkles Detektorband) und Box 1 (−0,004) verworfen → Regel „Score > 0“. Zwischendurch Zustandsfehler im Notebook (`boxes` überschrieben → erst 3, dann 1 Box) → Lösung: neue Variable `boxes_used` + „Restart Kernel and Run All“.
+- Streifen: in i2d entlang der Zeilen (Zeilen/Spalten 2,1–3,5). 08a: leerer Himmel, ganze Zeile → kaum Wirkung; 512-px-Abschnitte → −30 % (pro 128-px-Block), aber Abschnitte im Nebel unkorrigiert → blaue F162M-Streifen im Innenraum. 08b: lokales Modell (16-px-Medianzellen; Testbild: Fehler 0,14 vs. 0,44 alt) → flächige Korrektur auch im Nebel; Kennzahl (lokaler Rest) F162M 0,088 → 0,072 (alt) → 0,065 (neu), F212N 0,770 → 0,630 → 0,578.
+- Download-Schutz: `mast.download` lädt nur fehlende Dateien (Größenvergleich, 1 % Toleranz).
+- Export: Variante C, Querformat 4:3, Mitte (1671, 1608), 1562 × 1172 px ≈ 1,64′ × 1,23′; `output/ngc6720_nircam_C_physical_web.jpg` + `_caption.md`.

@@ -1,0 +1,35 @@
+{
+  "mixing": "RGB = sum(w*img*colour) / sum(w*colour) per channel; colour = HSV(hue, sat, 1)",
+  "variants": {
+    "A_chromatic": {
+      "hue_deg": {
+        "F162M": 240.0,
+        "F212N": 160.0,
+        "F300M": 80.0,
+        "F335M": 0.0
+      },
+      "saturation": {},
+      "weights": {}
+    },
+    "B_nasa": {
+      "hue_deg": {
+        "F162M": 240,
+        "F212N": 180,
+        "F300M": 120,
+        "F335M": 0
+      },
+      "saturation": {},
+      "weights": {}
+    },
+    "C_physical": {
+      "hue_deg": {
+        "F162M": 210,
+        "F212N": 15,
+        "F300M": 60,
+        "F335M": 40
+      },
+      "saturation": {},
+      "weights": {}
+    }
+  }
+}

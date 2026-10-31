@@ -29,6 +29,26 @@ def largest_square(inner, center, min_half=50):
     return lo
 
 
+def largest_rect(inner, center, aspect=1.0, min_half=50):
+    """Largest rectangle (half-height h, half-width round(aspect*h)) centred on `center`
+    inside `inner`. aspect = width / height, e.g. 4/3 for landscape."""
+    cy, cx = center
+
+    def ok(h):
+        w = int(round(aspect * h))
+        if cy - h < 0 or cx - w < 0 or cy + h > inner.shape[0] or cx + w > inner.shape[1]:
+            return False
+        return bool(inner[cy - h:cy + h, cx - w:cx + w].all())
+
+    lo, hi = min_half, max(inner.shape)
+    if not ok(lo):
+        raise ValueError("Not even the minimum rectangle fits – check centre/margin/aspect.")
+    while lo < hi:
+        mid = (lo + hi + 1) // 2
+        lo, hi = (mid, hi) if ok(mid) else (lo, mid - 1)
+    return lo, int(round(aspect * lo))
+
+
 def orientation(wcs, cy, cx, step=100):
     """(north_up, east_left) at pixel (cy, cx), checked with the WCS."""
     c0 = wcs.pixel_to_world(cx, cy)
