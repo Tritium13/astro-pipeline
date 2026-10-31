@@ -271,3 +271,12 @@ python -m astropipe.explore --no-run     # nur suchen + Konfiguration schreiben
 - Nahaufnahme 14″ bei 0,031″/px (455 px). Gesättigte Wolkenkerne in F210M (47 px) → `fill_holes(sat_fill="local")` + in allen Filtern weiß.
 - Farbe: 7 Varianten (A–E, G, G2) verglichen; Export A_chromatic + G_white_clouds (`output/neptune_*`), Parameter `params/neptune.json`.
 - Nächster Schritt: weitere Planeten mit dem Notebook testen, Skript erst danach angleichen.
+
+## 31.10.2026 (Abend) – Etappe 11: Uranus
+
+- `13_uranus.ipynb`: Kopie des Neptun-Ablaufs mit Parameterzelle (TARGET, PROGRAM, OBS, FIELD_ARCSEC, SHARP, EXCLUDE). Programm 6379, o002, 6 Breitbandfilter, 0,72 GB (`data/uranus_6379_nircam/`). Kurzwellen-i2d nur 119 MB (kleineres Feld als bei Neptun).
+- Drei Zeitgruppen (F150W+F356W 07:49, F115W+F444W 08:32, F070W+F277W 09:12 UTC); Bewegung 0,24″ pro Gruppe.
+- Fehler 1: F070W-Scheibe vollständig gesättigt (alle 7161 Scheibenpixel NaN) → `EXCLUDE = ["F070W"]`. Fehler 2: `SHARP` nach Neuausführen der Parameterzelle wieder `None` → fest „F150W“.
+- Scheibenmitte: F444W/F277W/F150W zeigen vor allem die helle Polregion (vermutet) → Referenz F115W (ganze Scheibe). F115W↔F356W 1,7 px; Abweichungen der anderen = Kappe, nicht Versatz (gleichzeitige Paare).
+- 2-D-Hintergrund zog den äußeren Lichthof ungleichmäßig ab → `USE_BG2D = False`. Streckung a = 0,02; F356W-Weißpunkt aus dem Feld (99,95 %).
+- Farbe: A (goldene Ringe), A_lrgb, B_ice (F356W grau → Ringe rosa: einziger Rotbeitrag), C_gold_rings (rot), D_silver_rings (F356W als weißes Licht überlagert) → Export A + D (`output/uranus_*`), Parameter `params/uranus.json`.
