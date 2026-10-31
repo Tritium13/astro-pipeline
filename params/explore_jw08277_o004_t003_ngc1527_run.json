@@ -1,0 +1,138 @@
+{
+  "config": "configs/explore/jw08277-o004_t003.toml",
+  "astropipe": "0.1.0",
+  "files": {
+    "F115W": "jw08277-o004_t003_nircam_clear-f115w_i2d.fits",
+    "F200W": "jw08277-o004_t003_nircam_clear-f200w_i2d.fits",
+    "F277W": "jw08277-o004_t003_nircam_clear-f277w_i2d.fits"
+  },
+  "clean": null,
+  "star_offsets_px": {
+    "F115W": 0.38212202734556433,
+    "F200W": 1.4285426725757462,
+    "F277W": 0.0
+  },
+  "stretch": {
+    "saturated_holes_filled_px": {
+      "F115W": {
+        "saturated_px": 46,
+        "bad_px": 1796
+      },
+      "F200W": {
+        "saturated_px": 31,
+        "bad_px": 1852
+      },
+      "F277W": {
+        "saturated_px": 52,
+        "bad_px": 419
+      }
+    },
+    "sky_boxes": {
+      "size_px": 150,
+      "yx": [
+        [
+          4725,
+          1875
+        ],
+        [
+          4950,
+          1350
+        ],
+        [
+          4425,
+          1350
+        ],
+        [
+          3600,
+          2550
+        ],
+        [
+          3075,
+          2475
+        ],
+        [
+          3975,
+          2025
+        ]
+      ],
+      "scores": [
+        0.29254451394081116,
+        0.2925772964954376,
+        0.29413455724716187,
+        0.2943345904350281,
+        0.29539796710014343,
+        0.29789578914642334
+      ]
+    },
+    "per_band": {
+      "F115W": {
+        "black_k": 0.5,
+        "white_pct": 99.9,
+        "a": 0.05,
+        "bkg": 0.19156309962272644,
+        "noise": 0.0033010076731443405,
+        "spread": 0.0074427127838134766,
+        "black": -0.0016505038365721703,
+        "white": 1.169111967086792
+      },
+      "F200W": {
+        "black_k": 0.5,
+        "white_pct": 99.9,
+        "a": 0.05,
+        "bkg": 0.13789919018745422,
+        "noise": 0.0034757666289806366,
+        "spread": 0.0027913451194763184,
+        "black": -0.0017378833144903183,
+        "white": 1.3560057878494263
+      },
+      "F277W": {
+        "black_k": 0.5,
+        "white_pct": 99.9,
+        "a": 0.05,
+        "bkg": 0.08718056976795197,
+        "noise": 0.001500199199654162,
+        "spread": 0.0012149959802627563,
+        "black": -0.000750099599827081,
+        "white": 1.3324769735336304
+      }
+    }
+  },
+  "colour": {
+    "A_chromatic": {
+      "hue_deg": {
+        "F115W": 240.0,
+        "F200W": 120.0,
+        "F277W": 0.0
+      },
+      "saturation": {},
+      "weights": {},
+      "luminance": null
+    }
+  },
+  "export": {
+    "center_mode": "interior",
+    "center_yx": [
+      1335,
+      1388
+    ],
+    "half_hw": [
+      803,
+      803
+    ],
+    "size_arcmin": [
+      1.6863,
+      1.6863
+    ],
+    "north_up": true,
+    "east_left": true,
+    "files": {
+      "A_chromatic": [
+        "../output/full_res/explore_jw08277_o004_t003_ngc1527_A_chromatic_16bit.tif",
+        "../output/full_res/explore_jw08277_o004_t003_ngc1527_A_chromatic_full.png",
+        "../output/runs/explore_jw08277_o004_t003_ngc1527_A_chromatic_web.jpg",
+        "../output/runs/explore_jw08277_o004_t003_ngc1527_A_chromatic_caption.md"
+      ]
+    }
+  },
+  "runtime_s": 11.8
+}

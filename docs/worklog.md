@@ -223,3 +223,18 @@ python -m astropipe.run configs/ngc3132.toml --no-export
 - Regressionstest: NGC 3132 Streckung (6 Filter) und Farbe C max. |diff| = 0; Ausschnitt (1570, 1575), 1578 px wie Notebook 06. NGC 6720 Streckung (4 Filter) = 0; Ausschnitt (1671, 1608), 1562 × 1172 px wie Notebook 08; gleiche 4 Himmelsboxen.
 - Laufzeit: NGC 3132 8 s (Reprojektion aus dem Terminal-Lauf wiederverwendet), NGC 6720 89 s inkl. lokaler Streifenkorrektur und Reprojektion.
 - Fix: `mast.total_size_gb` gibt bei leerer Liste 0 statt NaN (Warnung „converting a masked element to nan“).
+
+## 31.10.2026 – Etappe 9, Stufe 3: Entdecker-Modus + Lückenfehler
+
+```bash
+python -m astropipe.explore              # zufälliger Kandidat, Lauf + Bericht
+python -m astropipe.explore --seed 42    # reproduzierbar
+python -m astropipe.explore --no-run     # nur suchen + Konfiguration schreiben
+```
+
+- Neu: `src/astropipe/explore.py`, `notebooks/11_explore.ipynb`, `configs/explore/`.
+- Erster Lauf: Fenster 2025-08-10 + 30 d, 224 Beobachtungen, 32 Kandidaten; 2 zu groß (> 3 GB), gewählt `jw08277-o004_t003` (NGC1527, Programm 8277, F115W/F200W/F277W, 2,89 GB). Raster 5385 × 3366 px (zwei Module).
+- Fehler 1: kein Ausschnitt um den Helligkeitsschwerpunkt möglich → `export.interior_center`, Option `export.center = "auto"`.
+- Fehler 2: bunte Einzelpixel = NaN-Lücken aus defekten Pixeln, die als „gesättigt“ weiß gefüllt wurden. Erste Korrektur (globales 99-%-Perzentil) → im Regressionstest NGC 3132 alles CHECK. Diagnose (`stretch.classify_holes`, Ausschnitte): die als „bad“ eingestuften Lücken liegen auf Himmel/Nebelrauschen (innerer ≈ äußerer Ring) → die **alte** Füllung war falsch. Klarstellung: F405N/F470N haben am Zentralstern keine Lücken (das schwarze Zentrum in Etappe 4 kam aus den anderen Filtern).
+- Endgültiges Kriterium: lokaler Kontrast (Ring 1–2 px vs. 6–10 px). Prüfung gegen alte Ergebnisse: innerhalb der defekten Pixel max. |diff| 1,0, außerhalb max. 1,5·10⁻² (F090W), meist ~10⁻³ (verschobener Weißpunkt); F300M/F335M ohne defekte Pixel identisch.
+- Explorer-Bericht mit Warnhinweisen: `output/runs/<prefix>_report.md`.

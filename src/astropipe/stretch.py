@@ -1,28 +1,81 @@
 """Stage 4: saturated holes, sky background from empty boxes, asinh stretch."""
 import numpy as np
-from scipy.ndimage import binary_fill_holes, distance_transform_edt, label
+from scipy.ndimage import binary_dilation, binary_fill_holes, distance_transform_edt, find_objects, label
 from astropy.stats import sigma_clipped_stats
 
 
-def fill_saturated_holes(img, max_hole_px=2000):
-    """Fill NaN regions *inside* the image (saturated star cores) with the image maximum.
+def classify_holes(img, max_hole_px=2000, ring_px=2, ann_in=6, ann_out=10, k_sigma=20.0, min_ratio=1.5):
+    """Find NaN holes inside the image and classify them by *local* contrast.
 
-    NaN regions connected to the border (empty corners) stay NaN. Holes larger
-    than `max_hole_px` are left alone: in mosaics these are usually detector
-    gaps, which must not turn white. Returns (filled image, number of filled px).
+    For every hole: median of an inner ring (1..ring_px px around it) vs. an
+    outer annulus (ann_in..ann_out px). A saturated star core sits on the
+    steep wings of the star, so the inner ring is much brighter than the
+    annulus; a bad/flagged pixel has similar values all around – on dark sky
+    as well as on bright nebula (a global brightness threshold fails there).
+
+    saturated  <=>  ring - annulus > k_sigma * sigma  and  ring > min_ratio * annulus
+    (sigma = robust noise of the whole image). Holes larger than `max_hole_px`
+    (detector/module gaps) are skipped. Returns (label image, list of dicts).
     """
-    img = img.copy()
     finite = np.isfinite(img)
     holes = binary_fill_holes(finite) & ~finite
-    if max_hole_px is not None:
-        lab, n = label(holes)
-        if n:
-            sizes = np.bincount(lab.ravel())
-            too_big = np.flatnonzero(sizes > max_hole_px)
-            too_big = too_big[too_big > 0]
-            holes &= ~np.isin(lab, too_big)
-    img[holes] = np.nanmax(img)
-    return img, int(holes.sum())
+    lab, n = label(holes)
+    if n == 0:
+        return lab, []
+    v = img[finite]
+    sigma = 1.4826 * np.median(np.abs(v - np.median(v)))
+    sizes = np.bincount(lab.ravel())
+    pad = ann_out + 1
+    out = []
+    for i, sl in enumerate(find_objects(lab), start=1):
+        if sl is None or sizes[i] > max_hole_px:
+            continue
+        y0, y1 = max(sl[0].start - pad, 0), sl[0].stop + pad
+        x0, x1 = max(sl[1].start - pad, 0), sl[1].stop + pad
+        sub = img[y0:y1, x0:x1]
+        comp = lab[y0:y1, x0:x1] == i
+        ok = np.isfinite(sub)
+        d1 = binary_dilation(comp, iterations=ring_px)
+        d_in = binary_dilation(comp, iterations=ann_in)
+        d_out = binary_dilation(comp, iterations=ann_out)
+        ring, ann = d1 & ~comp & ok, d_out & ~d_in & ok
+        r = float(np.median(sub[ring])) if ring.any() else np.nan
+        a = float(np.median(sub[ann])) if ann.any() else np.nan
+        sat = bool(np.isfinite(r) and np.isfinite(a) and (r - a) > k_sigma * sigma
+                   and (a <= 0 or r > min_ratio * a))
+        cy, cx = (sl[0].start + sl[0].stop) // 2, (sl[1].start + sl[1].stop) // 2
+        out.append(dict(label=i, size=int(sizes[i]), yx=(int(cy), int(cx)), ring=r, annulus=a,
+                        saturated=sat, box=(y0, y1, x0, x1)))
+    return lab, out
+
+
+def fill_holes(img, max_hole_px=2000, **kw):
+    """Fill classified holes: saturated -> image maximum (white), bad pixel -> ring median.
+
+    Returns (filled image, n_saturated_px, n_bad_px). See classify_holes().
+    """
+    img = img.copy()
+    lab, holes = classify_holes(img, max_hole_px, **kw)
+    vmax = np.nanmax(img)
+    fallback = np.nanmedian(img)
+    n_sat = n_bad = 0
+    for h in holes:
+        y0, y1, x0, x1 = h["box"]
+        sub = img[y0:y1, x0:x1]
+        comp = lab[y0:y1, x0:x1] == h["label"]
+        if h["saturated"]:
+            sub[comp] = vmax
+            n_sat += h["size"]
+        else:
+            sub[comp] = h["ring"] if np.isfinite(h["ring"]) else fallback
+            n_bad += h["size"]
+    return img, n_sat, n_bad
+
+
+def fill_saturated_holes(img, max_hole_px=2000, **kw):
+    """Compatibility wrapper around fill_holes(): returns (filled, total filled px)."""
+    out, n_sat, n_bad = fill_holes(img, max_hole_px, **kw)
+    return out, n_sat + n_bad
 
 
 def common_valid(images):

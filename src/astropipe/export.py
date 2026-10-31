@@ -11,6 +11,18 @@ def nebula_center(img, valid, power=4):
     return int(round((w * yy).sum() / w.sum())), int(round((w * xx).sum() / w.sum()))
 
 
+def interior_center(valid):
+    """Pixel (y, x) farthest from any invalid pixel – the 'most interior' point.
+
+    Robust for arbitrary fields (galaxies at the edge, module gaps), where a
+    brightness-weighted centre can fall outside the usable area.
+    """
+    from scipy.ndimage import distance_transform_edt
+    d = distance_transform_edt(valid)
+    y, x = np.unravel_index(np.argmax(d), d.shape)
+    return int(y), int(x)
+
+
 def largest_square(inner, center, min_half=50):
     """Largest half-size h such that the square centred on `center` lies inside `inner`."""
     cy, cx = center

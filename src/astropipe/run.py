@@ -112,8 +112,12 @@ def register(cfg, files, work, name):
 
 def background_and_stretch(cfg, imgs):
     filled = {}
+    h = cfg.get("holes", {})
     for b in imgs:
-        imgs[b], filled[b] = stretch.fill_saturated_holes(imgs[b], cfg.get("holes", {}).get("max_hole_px", 2000))
+        imgs[b], n_sat, n_bad = stretch.fill_holes(imgs[b], h.get("max_hole_px", 2000),
+                                                   k_sigma=h.get("k_sigma", 20.0), min_ratio=h.get("min_ratio", 1.5))
+        filled[b] = {"saturated_px": n_sat, "bad_px": n_bad}
+    log("filled holes (saturated / bad px): " + ", ".join(f"{b} {v['saturated_px']}/{v['bad_px']}" for b, v in filled.items()))
     valid = stretch.common_valid(imgs)
     bg = cfg.get("background", {})
     box = bg.get("box", 150)
@@ -159,15 +163,29 @@ def make_colours(cfg, stretched):
 def crop_and_export(cfg, rgbs, stretched, valid, wcs_out, name, root, info, do_export=True):
     e = cfg.get("export", {})
     inner = distance_transform_edt(valid) > e.get("margin", 120)
-    center = export.nebula_center(stretched[e.get("center_band", list(stretched)[-1])], valid)
     aspect = e.get("aspect", 1.0)
-    half_h, half_w = export.largest_rect(inner, center, aspect=aspect)
+    mode = e.get("center", "auto")          # "nebula" | "interior" | "auto"
+    center, used = None, mode
+    if mode in ("nebula", "auto"):
+        center = export.nebula_center(stretched[e.get("center_band", list(stretched)[-1])], valid)
+        try:
+            half_h, half_w = export.largest_rect(inner, center, aspect=aspect)
+            used = "nebula"
+        except ValueError:
+            if mode == "nebula":
+                raise
+            log(f"no crop fits around the brightness centre {center} -> using the interior centre")
+            center = None
+    if center is None:
+        center = export.interior_center(valid)
+        half_h, half_w = export.largest_rect(inner, center, aspect=aspect)
+        used = "interior"
     cy, cx = center
     crop = np.s_[cy - half_h:cy + half_h, cx - half_w:cx + half_w]
     north_up, east_left = export.orientation(wcs_out, cy, cx)
     pix = cfg.get("grid", {}).get("resolution_arcsec", 0.063)
     size = (2 * half_w * pix / 60, 2 * half_h * pix / 60)
-    rec = {"center_yx": [cy, cx], "half_hw": [half_h, half_w], "size_arcmin": size,
+    rec = {"center_mode": used, "center_yx": [cy, cx], "half_hw": [half_h, half_w], "size_arcmin": size,
            "north_up": north_up, "east_left": east_left, "files": {}}
     log(f"crop {2 * half_w} x {2 * half_h} px = {size[0]:.2f}' x {size[1]:.2f}'")
     if do_export:
