@@ -109,3 +109,37 @@ def save_outputs(rgb, caption, stem, full_dir, web_dir, web_max=2000, jpeg_quali
     web.save(paths[2], quality=jpeg_quality)
     paths[3].write_text(caption, encoding="utf-8")
     return paths
+
+
+def save_overview(rgb, path, crop=None, marker=None, max_px=1500, jpeg_quality=90):
+    """Downscaled JPEG of the whole field with the crop drawn as a frame.
+
+    `rgb` (origin='lower') covers the full grid; `crop` is the (y, x) slice pair
+    used for the export, `marker` an optional (y, x) point (e.g. brightness
+    centre). Both are given in grid pixels and drawn north up like the export.
+    """
+    from PIL import Image, ImageDraw
+
+    h, w = rgb.shape[:2]
+    img = Image.fromarray((np.flipud(np.clip(rgb, 0, 1)) * 255 + 0.5).astype(np.uint8))
+    scale = min(1.0, max_px / max(h, w))
+    img = img.resize((max(1, round(w * scale)), max(1, round(h * scale))), Image.Resampling.LANCZOS)
+    draw = ImageDraw.Draw(img)
+    lw = max(2, round(3 * img.width / 1500))
+
+    def xy(y, x):                     # grid (origin lower) -> image (origin upper)
+        return x * scale, (h - y) * scale
+
+    if crop is not None:
+        ys, xs = crop
+        x0, y0 = xy(ys.start, xs.start)
+        x1, y1 = xy(ys.stop, xs.stop)
+        draw.rectangle([min(x0, x1), min(y0, y1), max(x0, x1), max(y0, y1)], outline=(255, 255, 255), width=lw)
+    if marker is not None:
+        mx, my = xy(*marker)
+        r = 6 * lw
+        draw.line([mx - r, my, mx + r, my], fill=(255, 60, 60), width=lw)
+        draw.line([mx, my - r, mx, my + r], fill=(255, 60, 60), width=lw)
+    Path(path).parent.mkdir(parents=True, exist_ok=True)
+    img.save(path, quality=jpeg_quality)
+    return Path(path)

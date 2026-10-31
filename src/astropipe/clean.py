@@ -37,7 +37,9 @@ def stripe_profile(img, bg, axis="rows", smooth=51, min_pixels=50):
 
     1. median of the background pixels in every row
     2. rows with fewer than `min_pixels` background pixels are interpolated
-    3. a running median over `smooth` rows is the slow part (real gradients)
+    3. a running median over `smooth` rows is the slow part (real gradients);
+       smooth = 0 keeps only the overall median (for empty fields: removes
+       broad bands too, but also real gradients along the columns)
     4. stripes = profile - slow part  (only row-to-row changes)
     """
     data = img if axis == "rows" else img.T
@@ -52,7 +54,10 @@ def stripe_profile(img, bg, axis="rows", smooth=51, min_pixels=50):
         return np.zeros(data.shape[0], np.float32), good
     idx = np.arange(prof.size)
     prof = np.interp(idx, idx[good], prof[good])
-    slow = median_filter(prof, size=smooth, mode="nearest")
+    if smooth:
+        slow = median_filter(prof, size=smooth, mode="nearest")
+    else:                       # smooth = 0: no high-pass, broad bands are removed too (empty fields)
+        slow = np.full_like(prof, np.median(prof[good]))
     return (prof - slow).astype(np.float32), good
 
 
@@ -100,12 +105,14 @@ def stripe_strength(img, bg, axis="rows", smooth=51, min_pixels=50, segment=None
     return float(np.mean(vals)) if vals else float("nan")
 
 
-def write_cleaned_i2d(src, dest, sci, note):
+def write_cleaned_i2d(src, dest, sci, note, key=None):
     """Write PRIMARY + cleaned SCI (with original headers) to `dest`."""
     with fits.open(src, memmap=True) as hdul:
         prim = fits.PrimaryHDU(header=hdul[0].header)
         sci_hdu = fits.ImageHDU(data=sci.astype(np.float32), header=hdul["SCI"].header, name="SCI")
     sci_hdu.header["HISTORY"] = note
+    if key:
+        sci_hdu.header[key[0]] = key[1:]
     Path(dest).parent.mkdir(parents=True, exist_ok=True)
     fits.HDUList([prim, sci_hdu]).writeto(dest, overwrite=True)
     return Path(dest)
@@ -171,3 +178,20 @@ def stripe_strength_local(img, block=16, nsigma=5.0, grow_px=5, axis="rows", smo
     """Stripe strength measured on the local residual – works inside the nebula too."""
     resid = img - smooth_model(img, block)
     return stripe_strength(resid, residual_mask(resid, nsigma, grow_px), axis, smooth, min_pixels, segment)
+
+
+# --- 2-D background (detector/exposure steps) ---------------------------------
+
+def subtract_background_2d(img, cell=128, nsigma=3.0, grow_px=15):
+    """Remove a smooth 2-D background (like a rolling ball / background
+    subtraction in Fiji): sources are masked, the remaining sky is medianed in
+    cell x cell boxes and bilinearly upsampled. Returns (cleaned, model).
+
+    Removes detector/exposure offsets and broad bands. Also removes any real
+    emission larger than ~cell pixels -> only for fields of compact sources
+    (galaxy fields), not for nebulae that fill the field.
+    """
+    bg = background_mask(img, nsigma, grow_px)
+    model = smooth_model(np.where(bg, img, np.nan), cell)
+    level = float(np.nanmedian(model[np.isfinite(img)]))
+    return (img - model + level).astype(np.float32), model

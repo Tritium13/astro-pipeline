@@ -238,3 +238,19 @@ python -m astropipe.explore --no-run     # nur suchen + Konfiguration schreiben
 - Fehler 2: bunte Einzelpixel = NaN-Lücken aus defekten Pixeln, die als „gesättigt“ weiß gefüllt wurden. Erste Korrektur (globales 99-%-Perzentil) → im Regressionstest NGC 3132 alles CHECK. Diagnose (`stretch.classify_holes`, Ausschnitte): die als „bad“ eingestuften Lücken liegen auf Himmel/Nebelrauschen (innerer ≈ äußerer Ring) → die **alte** Füllung war falsch. Klarstellung: F405N/F470N haben am Zentralstern keine Lücken (das schwarze Zentrum in Etappe 4 kam aus den anderen Filtern).
 - Endgültiges Kriterium: lokaler Kontrast (Ring 1–2 px vs. 6–10 px). Prüfung gegen alte Ergebnisse: innerhalb der defekten Pixel max. |diff| 1,0, außerhalb max. 1,5·10⁻² (F090W), meist ~10⁻³ (verschobener Weißpunkt); F300M/F335M ohne defekte Pixel identisch.
 - Explorer-Bericht mit Warnhinweisen: `output/runs/<prefix>_report.md`.
+
+## 31.10.2026 (Nachmittag) – Explorer: Übersicht, Cache-Fehler, leere Felder
+
+- `09a` neu gelaufen (neue Lückenfüllung); W2/W2s minimal verändert.
+- Explorer `--seed 7` → NGC 5643 (Programm 1685, F090W/F150W/F277W, 2,71 GB). Kern liegt im Lückenkreuz der SW-Detektoren → Ausschnitt nur 0,74′ in einem Detektor. Neu: `export.save_overview` (`*_overview.jpg`), Bericht mit Anteil defekter Pixel und Hinweis „Helligkeitsschwerpunkt an Lücke“.
+- Seed war nicht reproduzierbar (Zeitfenster hing an der Uhrzeit, MAST-Reihenfolge) → behoben; zweiter Lauf lieferte J0217-0208 (Programm 1657, F150W/F200W/F300M/F410M).
+- J0217-0208: starke Streifen + farbige Blöcke. `clean.method = "local"` ohne Wirkung, weil (1) `reproject_all` alte Dateien nur nach Namen wiederverwendete (behoben: `SRCFILE` + Zeitstempel), (2) `cleaned/` ebenso (behoben: Header `ASTCLEAN` = Hash der Einstellungen), (3) breite Bänder vom 16-px-Modell bzw. Hochpass `smooth = 51` nicht erfasst werden. Lösung: `sky`, `smooth = 0`, `segment = 512`, `clean.subtract_background_2d` (128 px). Streifenrichtung gemessen: Zeilen ≈ 2× stärker als Spalten.
+- Ergebnis: Blöcke fast weg, Reststreifen in F150W/F200W → bekannte Einschränkung (Einzelaufnahmen im i2d gegeneinander versetzt), mögliche Etappe 10.
+- Neu: `clean.method = "auto"` (`run.assess_field`), Explorer schreibt es als Standard. Test: `configs/explore/jw01657-o006_t002_auto.toml`.
+
+## 31.10.2026 (später Nachmittag) – NGC 5643 aus zwei Beobachtungen, Planeten-Bestand
+
+- `clean.method = "auto"`: erstes Kriterium (Himmelsanteil > 50 %) scheiterte (leeres Feld 0,43–0,51) → großräumige Struktur / Rauschen (< 3 σ = leer). J0217: 0,6–1,0 σ → `sky` + 2-D-Hintergrund, wie von Hand. NGC 5643: 16–39 σ → gefüllt; Streifenmaß am Himmelsprofil lieferte 1–6 (Galaxie selbst) → bei gefüllten Feldern am lokalen Rest: 0,12–0,28.
+- MAST, Programm 1685: alle sechs Galaxien je zwei Beobachtungen; N5643 o011 (07.07.2023) und o012 (22.07.2023), Umrisse (`s_region`) zeigen vertauschte Module, leichte Drehung → kombinieren.
+- `run.py`: `data.obs` als Liste, Schlüssel `<band>_<oNNN>`, `combine_observations` (Median-Offset im Überlapp, Mittelwert). `configs/ngc5643.toml`: Raster 7724 × 2882, Offsets −0,013/+0,008/+0,014, Sternversatz 0,1 px, Laufzeit 643 s inkl. 2,7 GB Download. Ausschnitt von Hand `[3860, 1597]`, 2100 px.
+- Planeten in MAST (NIRCam, Stufe 3): Jupiter 1022/1373/9022, Mars 1415/2787, Neptun 2739, Uranus 2739/2768/6379/8975/9482; Saturn nicht gefunden → Etappe 11 (Idee).

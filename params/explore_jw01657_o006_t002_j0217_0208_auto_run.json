@@ -1,0 +1,221 @@
+{
+  "config": "configs/explore/jw01657-o006_t002_auto.toml",
+  "astropipe": "0.1.0",
+  "files": {
+    "F150W": "jw01657-o006_t002_nircam_clear-f150w_i2d.fits",
+    "F200W": "jw01657-o006_t002_nircam_clear-f200w_i2d.fits",
+    "F300M": "jw01657-o006_t002_nircam_clear-f300m_i2d.fits",
+    "F410M": "jw01657-o006_t002_nircam_clear-f410m_i2d.fits"
+  },
+  "clean": {
+    "method": "auto",
+    "auto": {
+      "empty_field": true,
+      "measured": {
+        "F150W": {
+          "sky_fraction": 0.492,
+          "structure": 1.01,
+          "stripes_rows": 0.424,
+          "stripes_columns": 0.266
+        },
+        "F200W": {
+          "sky_fraction": 0.511,
+          "structure": 1.02,
+          "stripes_rows": 0.408,
+          "stripes_columns": 0.297
+        },
+        "F300M": {
+          "sky_fraction": 0.435,
+          "structure": 0.64,
+          "stripes_rows": 0.387,
+          "stripes_columns": 0.201
+        },
+        "F410M": {
+          "sky_fraction": 0.432,
+          "structure": 0.56,
+          "stripes_rows": 0.385,
+          "stripes_columns": 0.175
+        }
+      },
+      "chosen": {
+        "F150W": {
+          "method": "sky",
+          "axis": "rows",
+          "smooth": 0,
+          "background2d_cell": 128
+        },
+        "F200W": {
+          "method": "sky",
+          "axis": "rows",
+          "smooth": 0,
+          "background2d_cell": 128
+        },
+        "F300M": {
+          "method": "sky",
+          "axis": "rows",
+          "smooth": 0,
+          "background2d_cell": 128
+        },
+        "F410M": {
+          "method": "sky",
+          "axis": "rows",
+          "smooth": 0,
+          "background2d_cell": 128
+        }
+      }
+    }
+  },
+  "star_offsets_px": {
+    "F150W": 0.18598134879614708,
+    "F200W": 0.17273609021931124,
+    "F300M": 0.21522560177085076,
+    "F410M": 0.0
+  },
+  "grid_shape": [
+    2720,
+    2713
+  ],
+  "stretch": {
+    "saturated_holes_filled_px": {
+      "F150W": {
+        "saturated_px": 0,
+        "bad_px": 207
+      },
+      "F200W": {
+        "saturated_px": 0,
+        "bad_px": 209
+      },
+      "F300M": {
+        "saturated_px": 0,
+        "bad_px": 296
+      },
+      "F410M": {
+        "saturated_px": 0,
+        "bad_px": 270
+      }
+    },
+    "sky_boxes": {
+      "size_px": 150,
+      "yx": [
+        [
+          1275,
+          1350
+        ],
+        [
+          1950,
+          750
+        ],
+        [
+          1200,
+          1875
+        ],
+        [
+          2100,
+          1350
+        ],
+        [
+          750,
+          675
+        ],
+        [
+          1275,
+          450
+        ]
+      ],
+      "scores": [
+        0.7338258624076843,
+        0.7352456450462341,
+        0.7353606224060059,
+        0.7356538772583008,
+        0.7362552881240845,
+        0.7364803552627563
+      ]
+    },
+    "per_band": {
+      "F150W": {
+        "black_k": 0.5,
+        "white_pct": 99.9,
+        "a": 0.05,
+        "bkg": 0.2767758071422577,
+        "noise": 0.011311260052025318,
+        "spread": 0.0007582902908325195,
+        "black": -0.005655630026012659,
+        "white": 0.8277682065963745
+      },
+      "F200W": {
+        "black_k": 0.5,
+        "white_pct": 99.9,
+        "a": 0.05,
+        "bkg": 0.2068265974521637,
+        "noise": 0.009643437340855598,
+        "spread": 0.006642192602157593,
+        "black": -0.004821718670427799,
+        "white": 0.9889166951179504
+      },
+      "F300M": {
+        "black_k": 0.5,
+        "white_pct": 99.9,
+        "a": 0.05,
+        "bkg": 0.12227484583854675,
+        "noise": 0.00840136781334877,
+        "spread": 0.002653658390045166,
+        "black": -0.004200683906674385,
+        "white": 0.9719428420066833
+      },
+      "F410M": {
+        "black_k": 0.5,
+        "white_pct": 99.9,
+        "a": 0.05,
+        "bkg": 0.2010740041732788,
+        "noise": 0.008095648139715195,
+        "spread": 0.002021998167037964,
+        "black": -0.004047824069857597,
+        "white": 0.8010396361351013
+      }
+    }
+  },
+  "colour": {
+    "A_chromatic": {
+      "hue_deg": {
+        "F150W": 240.0,
+        "F200W": 160.0,
+        "F300M": 80.0,
+        "F410M": 0.0
+      },
+      "saturation": {},
+      "weights": {},
+      "luminance": null
+    }
+  },
+  "export": {
+    "center_mode": "nebula",
+    "center_yx": [
+      1308,
+      1320
+    ],
+    "half_hw": [
+      756,
+      756
+    ],
+    "size_arcmin": [
+      1.5876,
+      1.5876
+    ],
+    "brightness_center_yx": [
+      1308,
+      1320
+    ],
+    "north_up": true,
+    "east_left": true,
+    "files": {
+      "A_chromatic": [
+        "output/full_res/explore_jw01657_o006_t002_j0217_0208_auto_A_chromatic_16bit.tif",
+        "output/full_res/explore_jw01657_o006_t002_j0217_0208_auto_A_chromatic_full.png",
+        "output/runs/explore_jw01657_o006_t002_j0217_0208_auto_A_chromatic_web.jpg",
+        "output/runs/explore_jw01657_o006_t002_j0217_0208_auto_A_chromatic_caption.md",
+        "output/runs/explore_jw01657_o006_t002_j0217_0208_auto_A_chromatic_overview.jpg"
+      ]
+    }
+  },
+  "runtime_s": 85.5
+}

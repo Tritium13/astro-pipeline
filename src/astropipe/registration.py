@@ -46,7 +46,9 @@ def reproject_all(files_by_band, wcs_out, shape_out, out_dir, prefix, overwrite=
     """Reproject every band and save as FITS (primary = SCI, extension FOOTPRINT).
 
     files_by_band: dict band -> i2d path. Returns dict band -> output path.
-    Existing outputs are reused unless overwrite=True.
+    Existing outputs are reused unless overwrite=True – but only if they were
+    made from the same input file (header SRCFILE) and are newer than it;
+    otherwise e.g. a later destriping step would silently be ignored.
     """
     out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -55,8 +57,11 @@ def reproject_all(files_by_band, wcs_out, shape_out, out_dir, prefix, overwrite=
         out_path = out_dir / f"{prefix}_{band.lower()}_reproj.fits"
         out[band] = out_path
         if out_path.exists() and not overwrite:
-            print(f"{band:<7} exists -> {out_path.name}")
-            continue
+            src = fits.getheader(out_path).get("SRCFILE")
+            if src == Path(path).name and out_path.stat().st_mtime >= Path(path).stat().st_mtime:
+                print(f"{band:<7} exists -> {out_path.name}")
+                continue
+            print(f"{band:<7} outdated (made from {src}) -> reprojecting")
         t0 = time.perf_counter()
         array, footprint, bunit = reproject_file(path, wcs_out, shape_out)
         hdr = wcs_out.to_header()

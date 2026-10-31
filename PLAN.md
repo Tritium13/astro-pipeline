@@ -95,6 +95,16 @@ Eine Etappe ist erst fertig, wenn:
 - [ ] README mit Beispielbildern, Lizenz, Datennachweis
 - [ ] Repo öffentlich schalten
 
+### Etappe 11 (Idee) – Planeten
+- MAST-Bestand NIRCam, Stufe 3, öffentlich (31.10.2026): Jupiter (1022, 1373, 9022), Mars (1415, 2787), Neptun (2739, 1 Beob., F140M/F210M/F300M/F460M), Uranus (2739, 2768, 6379, 8975, 9482); Saturn unter diesem Namen nicht gefunden (andere Bezeichnung oder nur andere Instrumente? prüfen)
+- Erster Kandidat: **Neptun, Programm 2739** (eine Beobachtung, 4 Filter, überschaubar); danach Uranus 6379 (8 Breitbandfilter)
+- Besonderheiten: bewegtes Ziel (Registrierung am Planeten statt an Sternen), extrem hell vs. schwache Ringe/Monde, Subarrays (`sub160/320/640`), Mosaike bei Jupiter
+
+### Etappe 10 (Idee, optional) – Korrektur an den Einzelaufnahmen
+- [ ] 1/f-Streifen pro Einzelaufnahme (Stufe 2, `_cal.fits`) korrigieren und das Mosaik selbst mit der `jwst`-Pipeline neu zusammensetzen; vorhandene Werkzeuge (Pipeline-Schritt, Community-Skripte) erst recherchieren und prüfen
+- Grund: im i2d liegen die Streifenmuster der versetzten Aufnahmen verschoben übereinander → mit Zeilenprofilen nicht vollständig entfernbar (wie Festmuster-Rauschen nach dem Stitchen eines Tile-Scans)
+- Aufwand: viele Einzeldateien, Pipeline + Referenzdateien, deutlich mehr Rechenzeit (RAM 16 GB beachten)
+
 ### Etappe 9 – Automatisierung / „Entdecker-Modus“ (Idee, nach Etappe 7/8)
 Ziel: beliebige passende JWST-Bilddaten mit derselben Pipeline per Skript verarbeiten.
 - [x] Stufe 1: Generalisierung aus Etappe 7 (Funktionen in `src/`, am Ring-Nebel getestet)
@@ -104,6 +114,14 @@ Ziel: beliebige passende JWST-Bilddaten mit derselben Pipeline per Skript verarb
 - [x] Dabei gefunden und behoben: (1) Ausschnitt scheitert bei Feldern ohne zentrales Objekt → `center = "auto"` mit Rückfall auf die innerste Stelle; (2) **Fehler seit Etappe 4:** NaN-Lücken aus defekten Pixeln wurden wie gesättigte Kerne weiß gefüllt → `stretch.classify_holes` (lokaler Kontrast innerer Ring vs. äußerer Ring); defekte Pixel bekommen den Umgebungsmedian
 - [ ] Notebook-Ergebnisse von gestern enthalten die weißen Kleckse → als Referenz gelten ab jetzt die Skript-Ergebnisse (`output/runs/`); `09a` (NIRCam + MIRI) bei Gelegenheit neu laufen lassen
 - [ ] Explorer: einzelner blauer Pixel im NGC-1527-Feld prüfen (Artefakt oder Objekt?)
+- [x] Übersichtsbild pro Lauf (`*_overview.jpg`: ganzes Feld, Rahmen = Ausschnitt, rotes Kreuz = Helligkeitsschwerpunkt); Bericht verlinkt es
+- [x] Cache-Fehler behoben: Registrierung und Streifenkorrektur nutzten Zwischenergebnisse nur nach Dateinamen wieder → jetzt Prüfung von Quelle (`SRCFILE`), Zeitstempel und Einstellungen (`ASTCLEAN`)
+- [x] Seed reproduzierbar (Zeitfenster bis Monatsanfang, Kandidaten vor dem Mischen sortiert)
+- [x] Tiefes leeres Feld (J0217-0208, Programm 1657): breite Bänder + Stufen zwischen Aufnahmen → `clean.method = "sky"`, `smooth = 0`, `background2d_cell = 128`; deutlich besser, Reste in F150W/F200W bleiben (**bekannte Einschränkung**, s. Entscheidungen)
+- [x] `clean.method = "auto"` an zwei Feldern geprüft: leer (J0217, Struktur 0,6–1,0 σ) vs. gefüllt (NGC 5643, 16–39 σ); Streifen bei gefüllten Feldern am lokalen Rest gemessen
+- [ ] Schwellen (Struktur 3 σ, Streifen 0,15) an weiteren Feldern beobachten
+- [x] NGC 5643 (Programm 1685): zwei Beobachtungen (o011 + o012, 15 Tage Abstand, Module vertauscht) kombiniert → Lückenkreuz bis auf einen schmalen Keil rechts vom Kern gefüllt; Ausschnitt von Hand 2100 px ≈ 2,2′ um den Kern (`configs/ngc5643.toml`)
+- [ ] NGC 5643: schwarzer Keil und kleine Rechtecke am Kern – so lassen (ehrlich) oder Ausschnitt anpassen? Ergebnis/Bildunterschrift prüfen
 - Vorab-Filter: nur Bildgebung, ≥ 3 Filter, öffentlich, Stufe 3, überlappende Bildfelder, Größengrenze (RAM 16 GB)
 - Erkenntnisse aus NGC 6720: Box-Suche soll Boxen mit negativem Score automatisch verwerfen (Detektor-Artefakte); wenn das Objekt das Feld füllt, gibt es keinen leeren Himmel → Hintergrund relativ, Streifenkorrektur mit lokalem Modell; Detektor-Blöcke (2D-Helligkeitsstufen) wären der nächste Schritt; Notebooks vor dem Ergebnis immer per „Restart & Run All“ prüfen (Zustandsfehler bei `boxes`)
 - Bekannte Fallstricke: Mosaike mit Detektorlücken (`binary_fill_holes` würde sie weiß füllen → Lückengröße begrenzen), Spektroskopie/Koronografie/Zeitreihen/bewegte Ziele ausschließen, große Datenmengen
@@ -131,6 +149,10 @@ Ziel: beliebige passende JWST-Bilddaten mit derselben Pipeline per Skript verarb
 | 31.10.2026 | Konfiguration als TOML (`configs/*.toml`), Ausführung `python -m astropipe.run`; Zwischenergebnisse in `data/<name>_run/`, Bilder in `output/runs/`, Protokoll `params/<name>_run.json` | TOML ist ab Python 3.11 eingebaut (`tomllib`), gut lesbar, kommentierbar; getrennte Ordner lassen Notebook-Ergebnisse unangetastet und vergleichbar | angenommen |
 | 31.10.2026 | Lücken im Bild nach **lokalem Kontrast** einstufen: gesättigt ⇔ innerer Ring − äußerer Ring > 20 σ und innerer Ring > 1,5 × äußerer Ring; sonst defekter Pixel → Umgebungsmedian | Alte Füllung (alles weiß) erzeugte helle Kleckse aus defekten Pixeln (NGC 3132: 6–11 pro Filter, 158–245 px). Ein globales Helligkeitskriterium scheitert in hellen Nebeln. Prüfung: Unterschiede zur alten Version nur an den defekten Pixeln (max. 1,0), sonst ≤ 1,5·10⁻² (verschobener Weißpunkt) | angenommen |
 | 31.10.2026 | Referenz für Regressionstests ab jetzt: Skript-Ergebnisse nach der Lückenkorrektur | Die Notebook-Ergebnisse vom 30./31.10. enthalten den Lückenfehler | angenommen |
+| 31.10.2026 | Leere, tiefe Felder: Zeilenkorrektur am leeren Himmel **ohne Hochpass** (`smooth = 0`) + 2-D-Hintergrund (128-px-Zellen, Quellen ausgeblendet); Explorer wählt per `clean.method = "auto"` (großräumige Struktur < 3 σ → leeres Feld; Streifen/Rauschen > 0,15 → korrigieren; erstes Kriterium „Himmelsanteil > 50 %“ scheiterte am Testfeld mit 0,43–0,51) | `local` (16-px-Modell) und `smooth = 51` behalten Bänder breiter als ~16–25 Zeilen. 2-D-Hintergrund entfernt auch echte Strukturen > ~8″ → nur für Felder mit kompakten Quellen, nicht für Nebel. Schwelle vorläufig | angenommen |
+| 31.10.2026 | Reststreifen in F150W/F200W bei J0217-0208 als bekannte Einschränkung akzeptieren, nicht kosmetisch verstecken | Saubere Lösung nur an den Einzelaufnahmen (Etappe 10). Negatives `black_k` würde schwache Galaxien mit verstecken | angenommen |
+| 31.10.2026 | Mehrere Beobachtungen pro Filter (`data.obs` als Liste): einzeln korrigieren und reprojizieren, Hintergrund der weiteren Beobachtung per Median-Differenz im Überlapp angleichen, dann mitteln | Füllt Detektorlücken (NGC 5643); Hintergrundunterschiede zwischen den Tagen klein (≈ 0,01 MJy/sr), Sternversatz 0,1 px. Cepheiden-Helligkeitsänderung zwischen den Tagen für ein Farbbild vernachlässigt | angenommen |
+| 31.10.2026 | Ausschnitt von Hand möglich (`export.center = [y, x]`, `size_px`); verbleibende Lücken bleiben schwarz | Automatik weicht Lücken aus und verfehlt dann das Motiv; Lücken nicht künstlich füllen | angenommen |
 | – | Repo-Sprache: komplett Englisch? | am Ende (Etappe 8) entscheiden | offen |
 | 30.10.2026 | Gesättigte Sternkerne: NaN-Lücken innerhalb des Bildes (`binary_fill_holes`) mit dem Maximalwert des Filters füllen | Pipeline setzt gesättigte Pixel auf NaN; ohne Füllung würden Sterne über die gemeinsame Gültigkeitsmaske in allen Filtern schwarz. Kosmetischer Eingriff (≈160–510 px pro Filter) | ersetzt am 31.10.2026 (Einstufung nach lokalem Kontrast, s. o.) |
 | 30.10.2026 | Farbzuordnung: **C – physikalisch gruppiert** (F187N 200°, F405N 225° → Blau/Cyan, ionisiertes Gas; F212N 20°, F470N 0° → Orange/Rot, molekularer Wasserstoff; F090W 55°, F356W 40° → Gelb, Breitband/Sterne), alle Gewichte 1 | Größter Kontrast zwischen innerer Blase und äußeren Schalen: jede physikalische Komponente bleibt in einer Farbfamilie, statt sich wie bei A/B aus Gegenfarben zu blassen Tönen zu mischen. Sieht dem veröffentlichten NASA-Bild am ähnlichsten. **Frei gewählt, nicht chromatisch**; bekannte Folge: Sterne gelbstichig. A und B bleiben in `params/ngc3132_color.json` dokumentiert | angenommen |

@@ -1,0 +1,192 @@
+{
+  "config": "configs/explore/jw01685-o012_t006.toml",
+  "astropipe": "0.1.0",
+  "files": {
+    "F090W": "jw01685-o012_t006_nircam_clear-f090w_i2d.fits",
+    "F150W": "jw01685-o012_t006_nircam_clear-f150w_i2d.fits",
+    "F277W": "jw01685-o012_t006_nircam_clear-f277w_i2d.fits"
+  },
+  "clean": {
+    "method": "auto",
+    "auto": {
+      "empty_field": false,
+      "measured": {
+        "F090W": {
+          "sky_fraction": 0.533,
+          "structure": 15.85,
+          "stripes_rows": 1.09,
+          "stripes_columns": 4.118
+        },
+        "F150W": {
+          "sky_fraction": 0.441,
+          "structure": 23.56,
+          "stripes_rows": 1.501,
+          "stripes_columns": 2.881
+        },
+        "F277W": {
+          "sky_fraction": 0.457,
+          "structure": 38.66,
+          "stripes_rows": 1.515,
+          "stripes_columns": 5.896
+        }
+      },
+      "chosen": {
+        "F090W": {
+          "method": "local",
+          "axis": "columns",
+          "smooth": 51,
+          "background2d_cell": 0
+        },
+        "F150W": {
+          "method": "local",
+          "axis": "columns",
+          "smooth": 51,
+          "background2d_cell": 0
+        },
+        "F277W": {
+          "method": "local",
+          "axis": "columns",
+          "smooth": 51,
+          "background2d_cell": 0
+        }
+      }
+    }
+  },
+  "star_offsets_px": {
+    "F090W": 0.08686568968003905,
+    "F150W": 0.07707754563361609,
+    "F277W": 0.0
+  },
+  "grid_shape": [
+    5104,
+    2693
+  ],
+  "stretch": {
+    "saturated_holes_filled_px": {
+      "F090W": {
+        "saturated_px": 212,
+        "bad_px": 2978
+      },
+      "F150W": {
+        "saturated_px": 304,
+        "bad_px": 2990
+      },
+      "F277W": {
+        "saturated_px": 378,
+        "bad_px": 2000
+      }
+    },
+    "sky_boxes": {
+      "size_px": 150,
+      "yx": [
+        [
+          4575,
+          1275
+        ],
+        [
+          4350,
+          675
+        ],
+        [
+          4200,
+          1725
+        ],
+        [
+          3450,
+          450
+        ],
+        [
+          3600,
+          1725
+        ],
+        [
+          3075,
+          825
+        ]
+      ],
+      "scores": [
+        0.044992417097091675,
+        0.04660934954881668,
+        0.046792879700660706,
+        0.047533854842185974,
+        0.04937451705336571,
+        0.05469551682472229
+      ]
+    },
+    "per_band": {
+      "F090W": {
+        "black_k": 0.5,
+        "white_pct": 99.9,
+        "a": 0.05,
+        "bkg": 0.27840036153793335,
+        "noise": 0.01128230057656765,
+        "spread": 0.05961915850639343,
+        "black": -0.005641150288283825,
+        "white": 12.833312034606934
+      },
+      "F150W": {
+        "black_k": 0.5,
+        "white_pct": 99.9,
+        "a": 0.05,
+        "bkg": 0.30016058683395386,
+        "noise": 0.00818652380257845,
+        "spread": 0.05093690752983093,
+        "black": -0.004093261901289225,
+        "white": 21.266489028930664
+      },
+      "F277W": {
+        "black_k": 0.5,
+        "white_pct": 99.9,
+        "a": 0.05,
+        "bkg": 0.14234760403633118,
+        "noise": 0.003690902143716812,
+        "spread": 0.02905954420566559,
+        "black": -0.001845451071858406,
+        "white": 11.6566162109375
+      }
+    }
+  },
+  "colour": {
+    "A_chromatic": {
+      "hue_deg": {
+        "F090W": 240.0,
+        "F150W": 120.0,
+        "F277W": 0.0
+      },
+      "saturation": {},
+      "weights": {},
+      "luminance": null
+    }
+  },
+  "export": {
+    "center_mode": "interior",
+    "center_yx": [
+      1762,
+      1993
+    ],
+    "half_hw": [
+      352,
+      352
+    ],
+    "size_arcmin": [
+      0.7392000000000001,
+      0.7392000000000001
+    ],
+    "brightness_center_yx": [
+      1345,
+      1596
+    ],
+    "north_up": true,
+    "east_left": true,
+    "files": {
+      "A_chromatic": [
+        "output/full_res/explore_jw01685_o012_t006_n5643_A_chromatic_16bit.tif",
+        "output/full_res/explore_jw01685_o012_t006_n5643_A_chromatic_full.png",
+        "output/runs/explore_jw01685_o012_t006_n5643_A_chromatic_web.jpg",
+        "output/runs/explore_jw01685_o012_t006_n5643_A_chromatic_caption.md",
+        "output/runs/explore_jw01685_o012_t006_n5643_A_chromatic_overview.jpg"
+      ]
+    }
+  },
+  "runtime_s": 162.2
+}

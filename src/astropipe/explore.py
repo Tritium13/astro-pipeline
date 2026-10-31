@@ -104,7 +104,7 @@ bands = [{bands_toml}]
 max_gb = 3.0
 
 [clean]
-method = "none"          # try "local" if stripes are visible
+method = "auto"          # measures sky fraction + stripe strength per filter and picks the cleaning (see params/*_run.json)
 
 [grid]
 resolution_arcsec = 0.063
@@ -147,7 +147,10 @@ credits = "Data: NASA, ESA, CSA, STScI (programme {cand['program']}), retrieved 
 def find_candidate(seed=None, max_gb=3.0, days=30, max_windows=5, max_checks=8, verbose=True):
     """Draw random time windows until a suitable candidate is found. Returns (cand, info)."""
     rng = random.Random(seed)
-    end = Time.now().mjd - 400      # ~ beyond the usual 12-month exclusive access period
+    # Window range ends ~400 d ago (beyond the usual 12-month exclusive access period),
+    # rounded down to the 1st of the month -> same seed = same windows within a month.
+    now = Time.now().datetime
+    end = Time(f"{now.year:04d}-{now.month:02d}-01").mjd - 400
     tried = []
     for _ in range(max_windows):
         start = rng.uniform(JWST_SCIENCE_START, end - days)
@@ -155,6 +158,7 @@ def find_candidate(seed=None, max_gb=3.0, days=30, max_windows=5, max_checks=8, 
         cands = group_candidates(obs)
         if verbose:
             print(f"window {Time(start, format='mjd').iso[:10]} + {days} d: {len(obs)} observations, {len(cands)} candidates")
+        cands.sort(key=lambda c: c["prefix"])   # MAST row order is not guaranteed -> sort before shuffling
         rng.shuffle(cands)
         for cand in cands[:max_checks]:
             ok, reason, sel = check_products(cand, max_gb)
@@ -166,7 +170,7 @@ def find_candidate(seed=None, max_gb=3.0, days=30, max_windows=5, max_checks=8, 
     raise RuntimeError("no suitable candidate found – try again or raise max_gb/max_windows")
 
 
-def write_report(cand, result, path, offset_warn_px=0.5):
+def write_report(cand, result, path, offset_warn_px=0.5, bad_frac_warn=1e-3):
     """Short Markdown report with automatic warnings for an explorer run."""
     e, st = result["export"], result["stretch"]
     warn = []
@@ -178,11 +182,29 @@ def write_report(cand, result, path, offset_warn_px=0.5):
                     + ", ".join(f"{b} {v:.2f} px" for b, v in big.items())
                     + " – evtl. gesättigte Sterne/Galaxien als Messpunkte; auf Farbsäume an Sternen achten.")
     holes = st.get("saturated_holes_filled_px", {})
-    bad = {b: v["bad_px"] for b, v in holes.items() if isinstance(v, dict) and v.get("bad_px", 0) > 500}
-    if bad:
-        warn.append("Viele defekte/markierte Pixel aufgefüllt: " + ", ".join(f"{b} {v}" for b, v in bad.items()))
+    npx = result.get("grid_shape") and result["grid_shape"][0] * result["grid_shape"][1]
+    bad = {b: v["bad_px"] for b, v in holes.items() if isinstance(v, dict) and v.get("bad_px", 0) > 0}
+    if npx:
+        bad = {b: v / npx for b, v in bad.items() if v / npx > bad_frac_warn}
+        if bad:
+            warn.append("Viele defekte/markierte Pixel aufgefüllt: "
+                        + ", ".join(f"{b} {100 * v:.2f} %" for b, v in bad.items()))
+    if e.get("brightness_center_yx") and e.get("center_mode") == "interior":
+        warn.append("Helligkeitsschwerpunkt (rotes Kreuz in der Übersicht) liegt an einer Lücke oder am Rand – "
+                    "vermutlich liegt das Hauptobjekt in einer Detektorlücke.")
     if len(st["sky_boxes"]["yx"]) < 3:
         warn.append(f"Nur {len(st['sky_boxes']['yx'])} Himmelsboxen – Hintergrund unsicher.")
+    au = (result.get("clean") or {}).get("auto")
+    if au:
+        strong = {b: max(m["stripes_rows"], m["stripes_columns"]) for b, m in au["measured"].items()
+                  if au["chosen"][b]["method"] != "none"}
+        kind = "leeres Feld (Himmel überwiegt)" if au["empty_field"] else "Objekt füllt das Feld"
+        if strong:
+            warn.append(f"Streifen erkannt ({kind}): " + ", ".join(f"{b} {v:.2f}" for b, v in strong.items())
+                        + " (Streifenstärke / Himmelsrauschen; Rauschen allein ≈ 0,06). Korrigiert mit "
+                        + ", ".join(sorted({au['chosen'][b]['method'] for b in strong}))
+                        + ("+ 2-D-Hintergrund" if au["empty_field"] else "")
+                        + ". Reste sind bei versetzten Einzelaufnahmen im i2d nicht ganz entfernbar (bekannte Einschränkung).")
     warn.append("Immer von Hand prüfen (nicht automatisch erkennbar): Streulicht/diffuse Schleier in einzelnen Filtern, "
                 "Streifen (dann `clean.method = \"local\"`), dunklere Bänder zwischen Detektoren.")
     lines = [f"# Entdecker-Bericht: {cand['target']} ({cand['prefix']})", "",
@@ -192,7 +214,11 @@ def write_report(cand, result, path, offset_warn_px=0.5):
              f"- Ausschnitt: {e['size_arcmin'][0]:.2f}′ × {e['size_arcmin'][1]:.2f}′ (Mitte: {e.get('center_mode')})",
              f"- Himmelsboxen: {len(st['sky_boxes']['yx'])}",
              f"- Laufzeit: {result['runtime_s']} s",
-             f"- Konfiguration: `{result['config']}`", "", "## Hinweise", ""]
+             f"- Konfiguration: `{result['config']}`"]
+    ov = [f for f in e.get("files", {}).get(next(iter(e.get("files", {})), ""), []) if f.endswith("_overview.jpg")]
+    if ov:
+        lines.append(f"- Übersicht (ganzes Feld, Rahmen = Ausschnitt): `{ov[0]}`")
+    lines += ["", "## Hinweise", ""]
     lines += [f"- {w}" for w in warn]
     text = "\n".join(lines) + "\n"
     Path(path).write_text(text, encoding="utf-8")

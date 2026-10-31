@@ -8,6 +8,7 @@ Every run writes into data/<run>/ (intermediate files) and output/ (images,
 caption), plus params/<run>_run.json with every value that was actually used.
 """
 import argparse
+import hashlib
 import json
 import re
 import time
@@ -44,10 +45,12 @@ def fetch(cfg, root):
     d = cfg["data"]
     raw = root / "data" / d["raw_dir"]
     obs, prods = mast.find_i2d(d["program"], d["instrument"])
+    obs_list = d.get("obs") or []
+    obs_list = [obs_list] if isinstance(obs_list, str) else list(obs_list)
     keep = []
     for i, row in enumerate(prods):
         name = row["productFilename"]
-        if d.get("obs") and d["obs"] not in name:
+        if obs_list and not any(o in name for o in obs_list):
             continue
         if not set(_bands_in_name(name)) & set(d["bands"]):
             continue
@@ -55,53 +58,177 @@ def fetch(cfg, root):
     sel = prods[keep]
     log(f"MAST: {len(prods)} i2d products, {len(sel)} selected ({mast.total_size_gb(sel):.2f} GB)")
     mast.download(sel, raw, max_gb=d.get("max_gb", 5.0))
-    files = {}
-    for name in sel["productFilename"]:
+    # One entry per (band, observation). With a single observation the key is the
+    # band itself (as before); with several it is "<band>_<oNNN>" and the
+    # observations are combined after reprojection (see `register`).
+    files, unit_band = {}, {}
+    for name in sorted(sel["productFilename"]):
         f = raw / name
         b = bands_mod.band_from_header(fits.getheader(f, 0))
-        if b in d["bands"]:
-            files[b] = f
-    missing = set(d["bands"]) - set(files)
+        if b not in d["bands"]:
+            continue
+        key = b
+        if len(obs_list) > 1:
+            m = re.search(r"[-_](o\d{3})_", name)
+            key = f"{b}_{m.group(1) if m else len(files)}"
+        files[key], unit_band[key] = f, b
+    missing = set(d["bands"]) - set(unit_band.values())
     if missing:
         raise RuntimeError(f"bands not found: {sorted(missing)}")
-    return {b: files[b] for b in bands_mod.sort_bands(files)}
+    order = {b: i for i, b in enumerate(bands_mod.sort_bands(set(unit_band.values())))}
+    keys = sorted(files, key=lambda k: (order[unit_band[k]], k))
+    return {k: files[k] for k in keys}, unit_band
 
 
 # --- step 2: optional destriping ----------------------------------------------
 
+def assess_field(files, stripe_thr=0.15, structure_thr=3.0):
+    """Measure per band and choose cleaning settings ("clean.method = 'auto'").
+
+    - structure: spread (5–95 %) of a coarse sky model (sources masked, 128-px
+      cells) divided by the sky noise. Empty field: only small steps between
+      detectors/exposures (≲ 1–2 sigma); a nebula or a large galaxy filling the
+      field: many sigma. Median over bands < structure_thr -> empty field.
+      (A first criterion, the fraction of "sky" pixels, failed: 0.43–0.51 in a
+      clearly empty deep field, because faint galaxies and the stripes themselves
+      are masked.)
+    - stripes: std of the row/column profile divided by the sky noise (pure
+      noise ~ 0.06). Empty field: profile of the empty sky without high-pass;
+      extended object: profile of the local residual (else the object's own
+      gradient counts as "stripes": NGC 5643 gave 1–6 instead of ~0.1).
+    Both thresholds are preliminary (31.10.2026, one field).
+    Empty field: sky destriping without high-pass + 2-D background (128 px);
+    otherwise: local destriping, no 2-D background.
+    """
+    meas = {}
+    for b, f in files.items():
+        sci = fits.getdata(f, extname="SCI").astype(np.float32)
+        finite = np.isfinite(sci)
+        bg = clean.background_mask(sci)
+        v = sci[bg]
+        sigma = 1.4826 * float(np.median(np.abs(v - np.median(v)))) if v.size else float("nan")
+        model = clean.smooth_model(np.where(bg, sci, np.nan), 128)[finite]
+        p5, p95 = np.percentile(model, [5, 95])
+        st = {a: clean.stripe_strength(sci, bg, a, smooth=0, segment=512) / sigma for a in ("rows", "columns")}
+        lo = {a: clean.stripe_strength_local(sci, axis=a, segment=512) / sigma for a in ("rows", "columns")}
+        meas[b] = {"sky_fraction": round(float(bg.sum() / max(finite.sum(), 1)), 3),
+                   "structure": round(float((p95 - p5) / sigma), 2),
+                   "stripes_sky": {a: round(v, 3) for a, v in st.items()},
+                   "stripes_local": {a: round(v, 3) for a, v in lo.items()}}
+    empty = float(np.median([m["structure"] for m in meas.values()])) < structure_thr
+    log("field type: " + ("empty (compact sources)" if empty else "extended object fills the field"))
+    choice = {}
+    for b, m in meas.items():
+        # empty field: sky profile without high-pass (also catches broad bands);
+        # extended object: the sky profile would measure the object itself ->
+        # use the local residual (image - 16-px model), as in 08b.
+        st = m["stripes_sky"] if empty else m["stripes_local"]
+        m["stripes_rows"], m["stripes_columns"] = st["rows"], st["columns"]
+        axis = "rows" if m["stripes_rows"] >= m["stripes_columns"] else "columns"
+        strong = max(m["stripes_rows"], m["stripes_columns"]) > stripe_thr
+        if empty:
+            choice[b] = {"method": "sky" if strong else "none", "axis": axis, "smooth": 0, "background2d_cell": 128}
+        else:
+            choice[b] = {"method": "local" if strong else "none", "axis": axis, "smooth": 51, "background2d_cell": 0}
+        log(f"{b}: structure {m['structure']:.1f} sigma, sky {m['sky_fraction']:.2f}, stripes rows {m['stripes_rows']:.2f}"
+            f" / columns {m['stripes_columns']:.2f} -> {choice[b]['method']} ({axis}), 2-D bg {choice[b]['background2d_cell']}")
+    return {"empty_field": empty, "measured": meas, "chosen": choice}
+
+
 def destripe(cfg, files, work):
     c = cfg.get("clean", {})
     method = c.get("method", "none")
-    if method == "none":
+    if method == "none" and not c.get("background2d_cell", 0):
         return files, None
+    rec = {"method": method, **{k: v for k, v in c.items() if k != "method"}}
+    if method == "auto":
+        rec["auto"] = assess_field(files, c.get("stripe_threshold", 0.15), c.get("structure_threshold", 3.0))
     out_dir = work / "cleaned"
     out = dict(files)
+    axes_used = {}
     for b in c.get("bands", list(files)):
+        if method == "auto":
+            cb = {**c, **rec["auto"]["chosen"][b]}
+            if cb["method"] == "none" and not cb["background2d_cell"]:
+                continue
+        else:
+            cb = c
+        m = cb["method"]
         dest = out_dir / files[b].name.replace("_i2d", "_destriped_i2d")
-        if not dest.exists():
+        key = hashlib.sha1(json.dumps(cb, sort_keys=True).encode()).hexdigest()[:16]
+        fresh = (dest.exists() and dest.stat().st_mtime >= files[b].stat().st_mtime
+                 and fits.getheader(dest, extname="SCI").get("ASTCLEAN") == key)
+        if not fresh:
             sci = fits.getdata(files[b], extname="SCI").astype(np.float32)
-            if method == "local":
-                cleaned, _, _, _ = clean.destripe_local(sci, "rows", block=c.get("block", 16), smooth=c.get("smooth", 51),
-                                                        segment=c.get("segment", 512))
-            elif method == "sky":
-                cleaned, _, _ = clean.destripe(sci, "rows", smooth=c.get("smooth", 51), segment=c.get("segment", 512))
+            axis = cb.get("axis", "rows")          # "rows" | "columns" | "auto"
+            if axis == "auto":
+                s = {a: clean.stripe_strength_local(sci, block=cb.get("block", 16), axis=a) for a in ("rows", "columns")}
+                axis = max(s, key=s.get)
+                log(f"{b}: stripe strength rows {s['rows']:.3g}, columns {s['columns']:.3g} -> axis {axis}")
+                axes_used[b] = {"axis": axis, "strength": s}
+            if m == "local":
+                cleaned, _, _, _ = clean.destripe_local(sci, axis, block=cb.get("block", 16), smooth=cb.get("smooth", 51),
+                                                        segment=cb.get("segment", 512))
+            elif m == "sky":
+                cleaned, _, _ = clean.destripe(sci, axis, smooth=cb.get("smooth", 51), segment=cb.get("segment", 512))
+            elif m == "none":
+                cleaned = sci
             else:
-                raise ValueError(f"unknown clean.method {method!r}")
-            clean.write_cleaned_i2d(files[b], dest, cleaned, f"astropipe.run destripe method={method} {c}")
-            log(f"destriped {b} ({method})")
+                raise ValueError(f"unknown clean.method {m!r}")
+            if cb.get("background2d_cell", 0):
+                cleaned, _ = clean.subtract_background_2d(cleaned, cell=cb["background2d_cell"])
+            clean.write_cleaned_i2d(files[b], dest, cleaned, f"astropipe.run destripe {cb}",
+                                    key=("ASTCLEAN", key, "hash of the [clean] settings"))
+            log(f"cleaned {b} (destripe {m}, 2-D background cell {cb.get('background2d_cell', 0)})")
         out[b] = dest
-    return out, {"method": method, **{k: v for k, v in c.items() if k != "method"}}
+    if axes_used:
+        rec["auto_axis"] = axes_used
+    return out, rec
 
 
 # --- step 3: registration ------------------------------------------------------
 
-def register(cfg, files, work, name):
+def combine_observations(parts):
+    """Combine several reprojected images of one band (same grid).
+
+    The first image is the reference; every further one is shifted by the
+    median difference in the overlap (background offset between observations,
+    like skymatch in the JWST pipeline), then all are averaged where they
+    overlap. Returns (image, offsets).
+    """
+    ref = parts[0]
+    stack, offsets = [ref], [0.0]
+    for p in parts[1:]:
+        both = np.isfinite(ref) & np.isfinite(p)
+        off = float(np.median(p[both] - ref[both])) if both.sum() > 1000 else 0.0
+        stack.append(p - off)
+        offsets.append(round(off, 6))
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", RuntimeWarning)     # pixels covered by none -> NaN
+        img = np.nanmean(np.stack(stack), axis=0).astype(np.float32)
+    return img, offsets
+
+
+def register(cfg, files, work, name, unit_band=None):
     g = cfg.get("grid", {})
     wcs_out, shape_out = registration.target_grid(files.values(), g.get("resolution_arcsec", 0.063))
     log(f"target grid {shape_out}")
     reproj = registration.reproject_all(files, wcs_out, shape_out, work / "reproj", name)
-    imgs = {b: fits.getdata(reproj[b]).astype(np.float32) for b in files}
-    ref = list(files)[-1]
+    unit_band = unit_band or {k: k for k in files}
+    imgs, combined = {}, {}
+    for k in files:
+        b = unit_band[k]
+        imgs.setdefault(b, []).append(fits.getdata(reproj[k]).astype(np.float32))
+    for b, parts in imgs.items():
+        if len(parts) == 1:
+            imgs[b] = parts[0]
+        else:
+            imgs[b], offs = combine_observations(parts)
+            combined[b] = {"units": [k for k in files if unit_band[k] == b], "offsets": offs}
+            log(f"{b}: combined {len(parts)} observations, background offsets {offs}")
+    if combined:
+        cfg.setdefault("_combined", combined)
+    ref = list(imgs)[-1]
     off = registration.star_offsets(imgs, ref)
     offsets = {b: (float(np.median(o)) if o else None) for b, o in off.items()}
     log("star offsets vs %s: %s" % (ref, {b: (round(v, 2) if v is not None else None) for b, v in offsets.items()}))
@@ -165,9 +292,18 @@ def crop_and_export(cfg, rgbs, stretched, valid, wcs_out, name, root, info, do_e
     inner = distance_transform_edt(valid) > e.get("margin", 120)
     aspect = e.get("aspect", 1.0)
     mode = e.get("center", "auto")          # "nebula" | "interior" | "auto"
-    center, used = None, mode
-    if mode in ("nebula", "auto"):
+    center, used, bright = None, mode, None
+    if isinstance(mode, (list, tuple)):     # hand-set centre [y, x] in grid pixels (see *_overview.jpg)
+        cy, cx = (int(v) for v in mode)
+        if "size_px" in e:                  # explicit size; may include gaps (shown black)
+            h, w = (e["size_px"], e["size_px"]) if isinstance(e["size_px"], int) else e["size_px"]
+            half_h, half_w = h // 2, w // 2
+        else:
+            half_h, half_w = export.largest_rect(inner, (cy, cx), aspect=aspect)
+        center, used = (cy, cx), "manual"
+    elif mode in ("nebula", "auto"):
         center = export.nebula_center(stretched[e.get("center_band", list(stretched)[-1])], valid)
+        bright = [int(v) for v in center]
         try:
             half_h, half_w = export.largest_rect(inner, center, aspect=aspect)
             used = "nebula"
@@ -186,15 +322,17 @@ def crop_and_export(cfg, rgbs, stretched, valid, wcs_out, name, root, info, do_e
     pix = cfg.get("grid", {}).get("resolution_arcsec", 0.063)
     size = (2 * half_w * pix / 60, 2 * half_h * pix / 60)
     rec = {"center_mode": used, "center_yx": [cy, cx], "half_hw": [half_h, half_w], "size_arcmin": size,
-           "north_up": north_up, "east_left": east_left, "files": {}}
+           "brightness_center_yx": bright, "north_up": north_up, "east_left": east_left, "files": {}}
     log(f"crop {2 * half_w} x {2 * half_h} px = {size[0]:.2f}' x {size[1]:.2f}'")
     if do_export:
         for vname in e.get("variants", list(rgbs)):
             cap = caption(cfg, vname, size, north_up and east_left, info)
             paths = export.save_outputs(rgbs[vname][crop], cap, f"{name}_{vname}",
                                         root / "output" / "full_res", root / "output" / "runs")
-            rec["files"][vname] = [str(p) for p in paths]
-            log(f"exported {vname}")
+            ov = export.save_overview(rgbs[vname], root / "output" / "runs" / f"{name}_{vname}_overview.jpg",
+                                      crop=crop, marker=bright)
+            rec["files"][vname] = [str(p) for p in paths] + [str(ov)]
+            log(f"exported {vname} (+ overview)")
     return rec, crop
 
 
@@ -212,7 +350,7 @@ def caption(cfg, vname, size, ok_orientation, info):
               "additive colour mixing"]
     if v.get("luminance"):
         steps.append(f"{int(v['luminance'].get('mix', 0.5) * 100)} % of the brightness from {v['luminance']['band']} (LRGB)")
-    steps.append("saturated star cores filled with white; no local adjustments")
+    steps.append("saturated star cores filled with white, isolated bad pixels with the local median; no local adjustments")
     orient = "north up, east left" if ok_orientation else "ORIENTATION TO BE CHECKED"
     return f"""# {c.get('title', cfg['run']['name'])}
 
@@ -251,10 +389,13 @@ def run(config_path, root=Path("."), do_export=True):
         rel = Path(config_path)
     info = {"config": str(rel), "astropipe": __version__}
 
-    files = fetch(cfg, root)
+    files, unit_band = fetch(cfg, root)
     info["files"] = {b: f.name for b, f in files.items()}
     files, info["clean"] = destripe(cfg, files, work)
-    imgs, wcs_out, shape_out, info["star_offsets_px"] = register(cfg, files, work, name)
+    imgs, wcs_out, shape_out, info["star_offsets_px"] = register(cfg, files, work, name, unit_band)
+    if cfg.get("_combined"):
+        info["combined"] = cfg.pop("_combined")
+    info["grid_shape"] = [int(v) for v in shape_out]
     stretched, valid, info["stretch"] = background_and_stretch(cfg, imgs)
     for b, s in stretched.items():
         fits.writeto(work / f"{name}_{b.lower()}_stretched.fits", s, overwrite=True)
