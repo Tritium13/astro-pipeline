@@ -49,11 +49,17 @@ def classify_holes(img, max_hole_px=2000, ring_px=2, ann_in=6, ann_out=10, k_sig
     return lab, out
 
 
-def fill_holes(img, max_hole_px=2000, **kw):
+def fill_holes(img, max_hole_px=2000, sat_fill="max", **kw):
     """Fill classified holes: saturated -> image maximum (white), bad pixel -> ring median.
+
+    sat_fill = "local": saturated holes get the maximum of their immediate
+    surroundings instead of the global image maximum – better for saturated
+    features on an extended bright object (e.g. bright clouds on a planet),
+    where the global maximum would create a white spot in one filter only.
 
     Returns (filled image, n_saturated_px, n_bad_px). See classify_holes().
     """
+    from scipy.ndimage import binary_dilation
     img = img.copy()
     lab, holes = classify_holes(img, max_hole_px, **kw)
     vmax = np.nanmax(img)
@@ -64,7 +70,11 @@ def fill_holes(img, max_hole_px=2000, **kw):
         sub = img[y0:y1, x0:x1]
         comp = lab[y0:y1, x0:x1] == h["label"]
         if h["saturated"]:
-            sub[comp] = vmax
+            if sat_fill == "local":
+                edge = binary_dilation(comp, iterations=2) & ~comp & np.isfinite(sub)
+                sub[comp] = np.max(sub[edge]) if edge.any() else vmax
+            else:
+                sub[comp] = vmax
             n_sat += h["size"]
         else:
             sub[comp] = h["ring"] if np.isfinite(h["ring"]) else fallback
@@ -124,7 +134,7 @@ def sky_stats(images, boxes, box=150):
     return stats
 
 
-def normalize(img, valid, bkg, noise, black_k, white_pct):
+def normalize(img, valid, bkg, noise, black_k, white_pct, white_value=None):
     """Map [bkg - black_k*noise, white] -> [0, 1]; invalid pixels -> 0.
 
     Larger black_k lowers the black point (brighter, noisier background);
@@ -132,7 +142,7 @@ def normalize(img, valid, bkg, noise, black_k, white_pct):
     """
     x = img - bkg
     black = -black_k * noise
-    white = np.percentile(x[valid], white_pct)
+    white = np.percentile(x[valid], white_pct) if white_value is None else white_value
     y = np.clip((x - black) / (white - black), 0, 1)
     return np.where(valid, y, 0.0).astype(np.float32), float(black), float(white)
 
@@ -148,7 +158,7 @@ def stretch_all(images, valid, stats, params):
     for b, img in images.items():
         p = params[b]
         y, black, white = normalize(img, valid, stats[b]["bkg"], stats[b]["noise"],
-                                    p["black_k"], p["white_pct"])
+                                    p["black_k"], p["white_pct"], p.get("white_value"))
         stretched[b] = asinh_stretch(y, p["a"])
         levels[b] = dict(black=black, white=white)
     return stretched, levels

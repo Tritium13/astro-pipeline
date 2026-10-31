@@ -96,13 +96,16 @@ Eine Etappe ist erst fertig, wenn:
 - [x] README (englisch) mit Beispielbildern, Kurzanleitung, ehrlichen Hinweisen, Datennachweis; `LICENSE` (MIT)
 - [x] Credits geprüft: MAST-Daten überwiegend gemeinfrei, Nennung von Mission und STScI erwartet (MAST Data Use Policy); JWST-Standard-Danksagung in README übernommen; Bild-Credit „NASA, ESA, CSA, STScI“ + eigene Bearbeitung
 - [x] Linienzuordnung NGC 3132 geprüft (NIRCam-Filterdoku; Pontoppidan et al. 2022, arXiv:2207.13067): F187N Paα, F405N Brα, F212N/F470N H₂ → in `configs/ngc3132.toml`
-- [ ] Bildunterschriften neu erzeugen (`run.py` für ngc3132, ngc6720, ngc5643), Branch prüfen und mergen
-- [ ] Repo öffentlich schalten
+- [x] Bildunterschriften neu erzeugt (ngc3132, ngc6720, ngc5643), Branch `english` in `main` gemergt
+- [x] **Repo öffentlich geschaltet (31.10.2026)**: https://github.com/Tritium13/astro-pipeline
 
-### Etappe 11 (Idee) – Planeten
+### Etappe 11 – Planeten
 - MAST-Bestand NIRCam, Stufe 3, öffentlich (31.10.2026): Jupiter (1022, 1373, 9022), Mars (1415, 2787), Neptun (2739, 1 Beob., F140M/F210M/F300M/F460M), Uranus (2739, 2768, 6379, 8975, 9482); Saturn unter diesem Namen nicht gefunden (andere Bezeichnung oder nur andere Instrumente? prüfen)
-- Erster Kandidat: **Neptun, Programm 2739** (eine Beobachtung, 4 Filter, überschaubar); danach Uranus 6379 (8 Breitbandfilter)
-- Besonderheiten: bewegtes Ziel (Registrierung am Planeten statt an Sternen), extrem hell vs. schwache Ringe/Monde, Subarrays (`sub160/320/640`), Mosaike bei Jupiter
+- [x] **Neptun** (Programm 2739, o004, 12.07.2022) in `12_neptune.ipynb`: Nahaufnahme 14″ × 14″ bei 0,031″/px, Ausrichtung am Planeten, Export **A_chromatic** (Referenz) + **G_white_clouds** (ästhetisch) in `output/`, Parameter `params/neptune.json`
+- [x] Paket erweitert: `registration.moving_target_offsets`, `write_shifted_i2d`, `disk_mask`, `disk_centroid(ref_mask=…)`; `stretch.fill_holes(sat_fill="local")`, `normalize(white_value=…)`; `run.py`: `grid.moving_target`, `export.center = "planet"`, `stretch.white_region = "planet"`, `holes.unify_saturated` (erste Skriptfassung, Werte noch nicht auf Notebook-Stand)
+- [ ] Vorgehen: erst weitere Planeten mit dem Notebook testen (wie robust ist es?), dann `configs/neptune.toml`/`run.py` angleichen (eigenes Nahaufnahme-Raster, `sat_fill`, Farbvariante G)
+- [ ] Nächster Kandidat: Uranus (Programm 6379, 8 Breitbandfilter) – danach Jupiter (Mosaike, Subarrays)
+- Besonderheiten bewegter Ziele: Pipeline rechnet im mitbewegten System des Planeten (`TARGTYPE = MOVING`, Position `MT_AVRA/MT_AVDEC` im SCI-Header); Filterpaare zu verschiedenen Zeiten → am Planeten ausrichten, Hintergrundsterne erscheinen doppelt; Monde (Triton) gesättigt; Subarrays (`sub160/320/640`)
 
 ### Etappe 10 (Idee, optional) – Korrektur an den Einzelaufnahmen
 - [ ] 1/f-Streifen pro Einzelaufnahme (Stufe 2, `_cal.fits`) korrigieren und das Mosaik selbst mit der `jwst`-Pipeline neu zusammensetzen; vorhandene Werkzeuge (Pipeline-Schritt, Community-Skripte) erst recherchieren und prüfen
@@ -159,6 +162,9 @@ Ziel: beliebige passende JWST-Bilddaten mit derselben Pipeline per Skript verarb
 | 31.10.2026 | Ausschnitt von Hand möglich (`export.center = [y, x]`, `size_px`); verbleibende Lücken bleiben schwarz | Automatik weicht Lücken aus und verfehlt dann das Motiv; Lücken nicht künstlich füllen | angenommen |
 | 31.10.2026 | Repo-Sprache: Notebooks, README, Code und Berichte englisch; PLAN/worklog deutsch | Öffentliches Publikum liest Notebooks und README; Plan und Worklog sind mein Arbeitsprotokoll | angenommen |
 | 31.10.2026 | Lizenz: MIT für den Code | kurz, verbreitet; Daten/Credits davon getrennt | angenommen |
+| 31.10.2026 | Planeten (bewegte Ziele): WCS jedes Bildes um die Differenz der mittleren Zielpositionen (`MT_AVRA/MT_AVDEC`) verschieben, dann wie gewohnt reprojizieren; Kontrolle über die geometrische Mitte der Scheibe (Schwelle = halber Median im F460M-Scheibenbereich) | Neptun bewegte sich zwischen den Filterpaaren um 0,62″; danach Scheibenmitten auf 0,5–0,9 px (0,031″-Raster). Helligkeitsgewichteter Schwerpunkt und niedrige Schwellen scheiterten an Wolken bzw. Ringen | angenommen |
+| 31.10.2026 | Neptun: Nahaufnahme 14″ auf dem Kurzwellen-Raster (0,031″), LW-Filter ×2 hochgerechnet; Weißpunkt aus der Scheibe (99,5 %); asinh a = 0,01; gesättigte Wolken lokal gefüllt, in allen Filtern weiß | Ringdetails aus F140M/F210M bleiben erhalten; Triton (gesättigt) außerhalb; a = 0,01 Kompromiss zwischen Oberfläche und Ringen (0,005: Lichthof). Hochrechnen erzeugt keine Details – dokumentiert | angenommen |
+| 31.10.2026 | Neptun Farbe: Export A (chromatisch, Referenz) und **G** (F140M 200°, F210M 180°, F460M 225°, F300M ohne Farbe; 50 % Helligkeit aus F210M) | Scheibe in allen Filtern ähnlich hell → reine Blau-Paletten mischen zu einheitlichem Cyan; F300M (dunkle Scheibe, helle Wolken) grau → weiße Wolken. Frei gewählt, angelehnt an Neptuns Aussehen im Sichtbaren | angenommen |
 | 30.10.2026 | Gesättigte Sternkerne: NaN-Lücken innerhalb des Bildes (`binary_fill_holes`) mit dem Maximalwert des Filters füllen | Pipeline setzt gesättigte Pixel auf NaN; ohne Füllung würden Sterne über die gemeinsame Gültigkeitsmaske in allen Filtern schwarz. Kosmetischer Eingriff (≈160–510 px pro Filter) | ersetzt am 31.10.2026 (Einstufung nach lokalem Kontrast, s. o.) |
 | 30.10.2026 | Farbzuordnung: **C – physikalisch gruppiert** (F187N 200°, F405N 225° → Blau/Cyan, ionisiertes Gas; F212N 20°, F470N 0° → Orange/Rot, molekularer Wasserstoff; F090W 55°, F356W 40° → Gelb, Breitband/Sterne), alle Gewichte 1 | Größter Kontrast zwischen innerer Blase und äußeren Schalen: jede physikalische Komponente bleibt in einer Farbfamilie, statt sich wie bei A/B aus Gegenfarben zu blassen Tönen zu mischen. Sieht dem veröffentlichten NASA-Bild am ähnlichsten. **Frei gewählt, nicht chromatisch**; bekannte Folge: Sterne gelbstichig. A und B bleiben in `params/ngc3132_color.json` dokumentiert | angenommen |
 

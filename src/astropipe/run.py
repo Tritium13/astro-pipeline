@@ -188,6 +188,26 @@ def destripe(cfg, files, work):
 
 # --- step 3: registration ------------------------------------------------------
 
+def align_moving_target(cfg, files, work):
+    """grid.moving_target = true: shift each WCS so the target (planet) lines up."""
+    if not cfg.get("grid", {}).get("moving_target", False):
+        return files, None
+    offs = registration.moving_target_offsets(files)
+    if not offs:
+        raise RuntimeError("grid.moving_target = true, but the files are not marked TARGTYPE = MOVING")
+    out = {}
+    for k, f in files.items():
+        dra, ddec = offs[k]
+        dest = work / "mt" / f.name.replace(".fits", "_mt.fits")
+        if not (dest.exists() and dest.stat().st_mtime >= f.stat().st_mtime):
+            registration.write_shifted_i2d(f, dest, dra, ddec)
+        out[k] = dest
+    log("moving target: WCS shifts [arcsec] " + ", ".join(
+        f"{k} ({offs[k][0] * 3600:+.3f}, {offs[k][1] * 3600:+.3f})" for k in files))
+    return out, {k: [offs[k][0] * 3600, offs[k][1] * 3600] for k in files}
+
+
+
 def combine_observations(parts):
     """Combine several reprojected images of one band (same grid).
 
@@ -229,6 +249,15 @@ def register(cfg, files, work, name, unit_band=None):
     if combined:
         cfg.setdefault("_combined", combined)
     ref = list(imgs)[-1]
+    if g.get("moving_target", False):
+        ref_disk = registration.disk_mask(imgs[ref])
+        cen = {b: registration.disk_centroid(im, ref_mask=ref_disk) for b, im in imgs.items()}
+        y0, x0 = cen[ref]
+        offsets = {b: (float(np.hypot(c[0] - y0, c[1] - x0)) if c else None) for b, c in cen.items()}
+        log("planet disk centroid offsets vs %s [px]: %s" % (ref, {b: (round(v, 2) if v is not None else None)
+                                                                   for b, v in offsets.items()}))
+        cfg["_disk_centre_yx"] = [float(y0), float(x0)]
+        return imgs, wcs_out, shape_out, offsets
     off = registration.star_offsets(imgs, ref)
     offsets = {b: (float(np.median(o)) if o else None) for b, o in off.items()}
     log("star offsets vs %s: %s" % (ref, {b: (round(v, 2) if v is not None else None) for b, v in offsets.items()}))
@@ -240,11 +269,17 @@ def register(cfg, files, work, name, unit_band=None):
 def background_and_stretch(cfg, imgs):
     filled = {}
     h = cfg.get("holes", {})
+    sat_union = None
     for b in imgs:
+        before = ~np.isfinite(imgs[b])
         imgs[b], n_sat, n_bad = stretch.fill_holes(imgs[b], h.get("max_hole_px", 2000),
                                                    k_sigma=h.get("k_sigma", 20.0), min_ratio=h.get("min_ratio", 1.5))
         filled[b] = {"saturated_px": n_sat, "bad_px": n_bad}
-    log("filled holes (saturated / bad px): " + ", ".join(f"{b} {v['saturated_px']}/{v['bad_px']}" for b, v in filled.items()))
+        if h.get("unify_saturated", False):
+            sat = before & (imgs[b] == np.nanmax(imgs[b]))
+            sat_union = sat if sat_union is None else (sat_union | sat)
+    log("filled holes (saturated / bad px): " + ", ".join(f"{b} {v['saturated_px']}/{v['bad_px']}" for b, v in filled.items()
+                                                         if isinstance(v, dict)))
     valid = stretch.common_valid(imgs)
     bg = cfg.get("background", {})
     box = bg.get("box", 150)
@@ -260,7 +295,22 @@ def background_and_stretch(cfg, imgs):
     st = cfg.get("stretch", {})
     default = {k: st.get(k, v) for k, v in dict(black_k=1.0, white_pct=99.9, a=0.05).items()}
     params = {b: {**default, **st.get("bands", {}).get(b, {})} for b in imgs}
+    if st.get("white_region") == "planet":
+        # white point from the planet's disk instead of the whole field: the disk
+        # is a tiny fraction of the pixels, a field percentile would burn it out
+        ref = list(imgs)[-1]
+        disk = registration.disk_mask(imgs[ref])
+        for b in imgs:
+            x = imgs[b] - stats[b]["bkg"]
+            params[b]["white_value"] = float(np.percentile(x[disk & valid], params[b].get("white_pct_disk",
+                                                                                     st.get("white_pct_disk", 99.0))))
     stretched, levels = stretch.stretch_all(imgs, valid, stats, params)
+    if sat_union is not None:
+        # saturated in any filter -> white in all (otherwise coloured blocks where
+        # the saturated areas differ between filters); cosmetic
+        for b in stretched:
+            stretched[b][sat_union] = 1.0
+        filled["unified_saturated_px"] = int(sat_union.sum())
     rec = {"saturated_holes_filled_px": filled, "sky_boxes": {"size_px": box, "yx": [list(map(int, b)) for b in boxes],
            "scores": scores}, "per_band": {b: {**params[b], **stats[b], **levels[b]} for b in imgs}}
     return stretched, valid, rec
@@ -293,6 +343,8 @@ def crop_and_export(cfg, rgbs, stretched, valid, wcs_out, name, root, info, do_e
     aspect = e.get("aspect", 1.0)
     mode = e.get("center", "auto")          # "nebula" | "interior" | "auto"
     center, used, bright = None, mode, None
+    if mode == "planet":                     # centre of the planet's disk (grid.moving_target)
+        mode = [round(v) for v in cfg["_disk_centre_yx"]]
     if isinstance(mode, (list, tuple)):     # hand-set centre [y, x] in grid pixels (see *_overview.jpg)
         cy, cx = (int(v) for v in mode)
         if "size_px" in e:                  # explicit size; may include gaps (shown black)
@@ -300,7 +352,7 @@ def crop_and_export(cfg, rgbs, stretched, valid, wcs_out, name, root, info, do_e
             half_h, half_w = h // 2, w // 2
         else:
             half_h, half_w = export.largest_rect(inner, (cy, cx), aspect=aspect)
-        center, used = (cy, cx), "manual"
+        center, used = (cy, cx), ("planet" if e.get("center") == "planet" else "manual")
     elif mode in ("nebula", "auto"):
         center = export.nebula_center(stretched[e.get("center_band", list(stretched)[-1])], valid)
         bright = [int(v) for v in center]
@@ -392,7 +444,10 @@ def run(config_path, root=Path("."), do_export=True):
     files, unit_band = fetch(cfg, root)
     info["files"] = {b: f.name for b, f in files.items()}
     files, info["clean"] = destripe(cfg, files, work)
+    files, info["moving_target"] = align_moving_target(cfg, files, work)
     imgs, wcs_out, shape_out, info["star_offsets_px"] = register(cfg, files, work, name, unit_band)
+    if cfg.get("_disk_centre_yx"):
+        info["planet_centre_yx"] = cfg["_disk_centre_yx"]
     if cfg.get("_combined"):
         info["combined"] = cfg.pop("_combined")
     info["grid_shape"] = [int(v) for v in shape_out]

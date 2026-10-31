@@ -260,3 +260,14 @@ python -m astropipe.explore --no-run     # nur suchen + Konfiguration schreiben
 - Branch `english`. Markdown-Zellen aller Notebooks per Skript ersetzt (JSON-Format wie Jupyter: `indent=1`, `sort_keys`, `ensure_ascii=False`), Code/Ausgaben unverändert; einzige Code-Änderung: Orientierungstext in `06_export` (Zelle 7).
 - `explore.write_report` auf Englisch; README neu (englisch), `LICENSE` (MIT), `scipy` explizit in `environment.yml`.
 - Quellen: MAST Data Use Policy (https://archive.stsci.edu/data_use.html), MAST Mission Acknowledgements (https://archive.stsci.edu/acknowledgments.html), NIRCam-Filter (https://jwst-docs.stsci.edu/jwst-near-infrared-camera/nircam-instrumentation/nircam-filters), Pontoppidan et al. 2022 (arXiv:2207.13067).
+
+## 31.10.2026 (Abend) – Etappe 11: Neptun
+
+- Bestand: Planeten in MAST (NIRCam, Stufe 3) per `target_name`-Liste; Neptun = Programm 2739, o004, 4 Filter, 1,65 GB (`data/neptune_2739_nircam/`).
+- Header: `TARGTYPE = MOVING`; `MT_AVRA/MT_AVDEC` im SCI-Header (nicht im Hauptheader – erster Fehler in `run.py`). Filterpaare F140M+F300M (06:28–07:52 UTC) und F210M+F460M (06:52–08:33 UTC), Bewegung dazwischen 0,62″.
+- Erst per Skript (`configs/neptune.toml`, ganzes Feld) versucht → zu dunkel, Triton-Artefakt; dann auf Wunsch Notebook `12_neptune.ipynb` Schritt für Schritt (wie bei den Nebeln).
+- Streifen: `sky`, `smooth = 0`, 2-D-Hintergrund 128 px – schadet den Ringen nicht, hilft um Neptun aber wenig.
+- Ausrichtung: WCS-Verschiebung um MT-Differenz; Scheibenmitte zuerst helligkeitsgewichtet (1–5 px, Wolken), dann mit halbierter Schwelle (24 px, Ringe verschmelzen), schließlich Schwelle aus F460M-Scheibe → 0,5–0,9 px.
+- Nahaufnahme 14″ bei 0,031″/px (455 px). Gesättigte Wolkenkerne in F210M (47 px) → `fill_holes(sat_fill="local")` + in allen Filtern weiß.
+- Farbe: 7 Varianten (A–E, G, G2) verglichen; Export A_chromatic + G_white_clouds (`output/neptune_*`), Parameter `params/neptune.json`.
+- Nächster Schritt: weitere Planeten mit dem Notebook testen, Skript erst danach angleichen.

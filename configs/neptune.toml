@@ -1,0 +1,51 @@
+# Neptune – JWST NIRCam, programme 2739 (observation o004, 12 July 2022). First planet (stage 11).
+[run]
+name = "neptune"
+
+[data]
+program = 2739
+instrument = "NIRCAM/IMAGE"
+raw_dir = "neptune_2739_nircam"
+obs = "jw02739-o004_t003_"
+bands = ["F140M", "F210M", "F300M", "F460M"]
+max_gb = 3.0
+
+[clean]
+method = "auto"
+
+[grid]
+resolution_arcsec = 0.063
+moving_target = true      # align on the planet (header MT_AVRA/MT_AVDEC), not on background stars
+
+[background]
+box = 150
+edge_margin = 150
+n_boxes = 6
+min_sep = 500
+drop_negative = true
+
+[holes]
+unify_saturated = true    # Triton's saturated core differs per filter -> white in all filters (cosmetic)
+
+[stretch]
+black_k = 0.5
+white_pct = 99.995        # only used if white_region is not set
+white_region = "planet"   # white point from the planet's disk (99.5 % of its pixels), not from the whole field
+white_pct_disk = 99.5
+a = 0.01                  # strong stretch: faint rings vs. bright disk
+
+[color.A_chromatic]
+mode = "chromatic"
+label = "hues by wavelength, 240° to 0°"
+
+[export]
+variants = ["A_chromatic"]
+center = "planet"
+size_px = 560             # ≈ 35″ around Neptune: rings + Triton
+margin = 50
+
+[caption]
+title = "Neptune – JWST NIRCam"
+description = "Neptune and its rings, observed on 12 July 2022 with NIRCam on the James Webb Space Telescope (programme 2739). The images were aligned on the planet, which moved by about 0.6″ between the two filter pairs; background stars are therefore not aligned."
+filter_source = ""
+credits = "Data: NASA, ESA, CSA, STScI (programme 2739), retrieved via MAST. Processing: Tritium13."

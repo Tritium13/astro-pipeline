@@ -145,3 +145,86 @@ def apply_shift(img, dy, dx):
     with np.errstate(invalid="ignore", divide="ignore"):
         out = data / w
     return np.where(w > 0.99, out, np.nan).astype(np.float32)
+
+
+# --- moving targets (planets) -------------------------------------------------
+# For TARGTYPE = MOVING the JWST pipeline resamples each i2d in the frame of
+# the target: the planet is sharp, the WCS is tied to the target's mean
+# position during that exposure (MT_AVRA/MT_AVDEC). Images taken at different
+# times therefore have the planet at different sky coordinates. Shifting each
+# WCS by the difference of the MT_AV positions puts the planet on the same
+# pixels in every filter (background stars then do NOT line up any more).
+
+def moving_target_offsets(files):
+    """Per file: (dRA, dDec) in degrees to add to CRVAL so that the target's mean
+    position matches that of the first file. Returns {} if not a moving target."""
+    pos = {}
+    for k, f in files.items():
+        h0 = fits.getheader(f, 0)
+        h1 = fits.getheader(f, extname="SCI")       # MT_* keywords live in the SCI header
+        h = h1 if "MT_AVRA" in h1 else h0
+        if h0.get("TARGTYPE") != "MOVING" or "MT_AVRA" not in h:
+            return {}
+        pos[k] = (h["MT_AVRA"], h["MT_AVDEC"])
+    ra0, dec0 = next(iter(pos.values()))
+    return {k: (ra0 - ra, dec0 - dec) for k, (ra, dec) in pos.items()}
+
+
+def write_shifted_i2d(src, dest, d_ra, d_dec, sci=None):
+    """Copy PRIMARY + SCI with CRVAL shifted by (d_ra, d_dec) degrees."""
+    with fits.open(src, memmap=True) as hdul:
+        prim = fits.PrimaryHDU(header=hdul[0].header)
+        hdr = hdul["SCI"].header.copy()
+        data = hdul["SCI"].data.astype(np.float32) if sci is None else sci
+    hdr["CRVAL1"] += d_ra
+    hdr["CRVAL2"] += d_dec
+    hdr["MTSHIFT1"] = (d_ra * 3600, "[arcsec] RA shift applied to align on target")
+    hdr["MTSHIFT2"] = (d_dec * 3600, "[arcsec] Dec shift applied to align on target")
+    Path(dest).parent.mkdir(parents=True, exist_ok=True)
+    fits.HDUList([prim, fits.ImageHDU(data=data, header=hdr, name="SCI")]).writeto(dest, overwrite=True)
+    return Path(dest)
+
+
+def disk_mask(img, frac=0.3, min_px=200, tries=4):
+    """Mask of the largest bright connected region (a planet's disk), or None.
+
+    Threshold: frac x the 99.99 % percentile. In a close-up, the 99.99 %
+    percentile is set by a few very bright clouds, and the threshold can lie
+    above most of the disk (the disk then falls apart into small pieces) –
+    so the threshold is halved up to `tries` times until a region of at least
+    `min_px` pixels is found. Small bright moons/stars are ignored.
+    """
+    from scipy import ndimage as ndi
+    data = np.nan_to_num(img)
+    top = np.percentile(img[np.isfinite(img)], 99.99)
+    for i in range(tries):
+        lab, n = ndi.label(data > frac * top / 2 ** i)
+        if n == 0:
+            continue
+        sizes = ndi.sum(np.ones_like(lab), lab, index=np.arange(1, n + 1))
+        k = int(np.argmax(sizes)) + 1
+        if sizes[k - 1] >= min_px:
+            return ndi.binary_fill_holes(lab == k)
+    return None
+
+
+def disk_centroid(img, frac=0.3, min_px=200, ref_mask=None):
+    """Geometric centre (y, x) of the planet's disk (unweighted, so bright clouds
+    or limb brightening do not pull it).
+
+    ref_mask: disk mask from a reference filter (e.g. F460M, smooth disk, no
+    rings). Then the threshold is half the median of this filter inside the
+    reference disk – far above the faint rings, which would otherwise merge
+    with the disk at low thresholds and pull the centre sideways.
+    """
+    from scipy import ndimage as ndi
+    if ref_mask is None:
+        m = disk_mask(img, frac, min_px)
+    else:
+        data = np.nan_to_num(img)
+        lab, n = ndi.label(data > 0.5 * np.nanmedian(img[ref_mask]))
+        if n == 0:
+            return None
+        sizes = ndi.sum(np.ones_like(lab), lab, index=np.arange(1, n + 1))
+        m = ndi.binary_fill_holes(lab == int(np.argmax(sizes)) + 1)
+    return None if m is None else ndi.center_of_mass(m)

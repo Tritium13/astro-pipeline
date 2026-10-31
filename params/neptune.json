@@ -1,0 +1,216 @@
+{
+  "files": {
+    "F140M": "jw02739-o004_t003_nircam_clear-f140m_i2d.fits",
+    "F210M": "jw02739-o004_t003_nircam_clear-f210m_i2d.fits",
+    "F300M": "jw02739-o004_t003_nircam_clear-f300m_i2d.fits",
+    "F460M": "jw02739-o004_t003_nircam_clear-f460m_i2d.fits"
+  },
+  "moving_target_shift_arcsec": {
+    "F140M": [
+      0.0,
+      0.0
+    ],
+    "F210M": [
+      0.5434760076468592,
+      0.30317537136621553
+    ],
+    "F300M": [
+      4.889989213552326e-06,
+      2.7284574599661937e-06
+    ],
+    "F460M": [
+      0.5434791207790113,
+      0.3031771084103241
+    ]
+  },
+  "grid": {
+    "centre_radec": [
+      355.97028565251065,
+      -3.036345711653616
+    ],
+    "pixel_arcsec": 0.030752414494111764,
+    "size_px": 455
+  },
+  "disk_centre_yx": {
+    "F140M": [
+      227.19623996620194,
+      225.08956485002113
+    ],
+    "F210M": [
+      227.64837228714524,
+      225.23101001669448
+    ],
+    "F300M": [
+      226.31607211354046,
+      224.66072113540469
+    ],
+    "F460M": [
+      226.79118481344096,
+      224.841370281475
+    ]
+  },
+  "use_bg2d": true,
+  "unify_saturated": true,
+  "sky_boxes": [
+    [
+      375,
+      50
+    ],
+    [
+      200,
+      0
+    ],
+    [
+      0,
+      150
+    ],
+    [
+      250,
+      400
+    ]
+  ],
+  "stretch": {
+    "F140M": {
+      "black_k": 0.5,
+      "white_pct": 99.9,
+      "a": 0.01,
+      "white_value": 1254.8575439453125,
+      "bkg": 0.2021191418170929,
+      "noise": 0.04407424479722977,
+      "spread": 0.017792358994483948,
+      "black": -0.022037122398614883,
+      "white": 1254.8575439453125
+    },
+    "F210M": {
+      "black_k": 0.5,
+      "white_pct": 99.9,
+      "a": 0.01,
+      "white_value": 137.20806884765625,
+      "bkg": 0.11428329348564148,
+      "noise": 0.033708639442920685,
+      "spread": 0.009389445185661316,
+      "black": -0.016854319721460342,
+      "white": 137.20806884765625
+    },
+    "F300M": {
+      "black_k": 0.5,
+      "white_pct": 99.9,
+      "a": 0.01,
+      "white_value": 439.220703125,
+      "bkg": 0.11711137741804123,
+      "noise": 0.006946162786334753,
+      "spread": 0.002882339060306549,
+      "black": -0.0034730813931673765,
+      "white": 439.220703125
+    },
+    "F460M": {
+      "black_k": 0.5,
+      "white_pct": 99.9,
+      "a": 0.01,
+      "white_value": 90.24507904052734,
+      "bkg": 0.34834524989128113,
+      "noise": 0.013653668574988842,
+      "spread": 0.01169443130493164,
+      "black": -0.006826834287494421,
+      "white": 90.24507904052734
+    }
+  },
+  "colour_variants": {
+    "A_chromatic": {
+      "hues": {
+        "F140M": 240.0,
+        "F210M": 160.0,
+        "F300M": 80.0,
+        "F460M": 0.0
+      },
+      "label": "hues by wavelength (chromatic), F140M blue to F460M red"
+    },
+    "B_blue": {
+      "hues": {
+        "F140M": 170,
+        "F210M": 190,
+        "F300M": 210,
+        "F460M": 230
+      },
+      "label": "chosen freely: cool hues"
+    },
+    "C_blue_lrgb": {
+      "hues": {
+        "F140M": 170,
+        "F210M": 190,
+        "F300M": 210,
+        "F460M": 230
+      },
+      "lum": [
+        "F210M",
+        0.5
+      ],
+      "label": "chosen freely: cool hues, 50 % luminance from F210M"
+    },
+    "D_cool_wide": {
+      "hues": {
+        "F140M": 150,
+        "F210M": 190,
+        "F300M": 230,
+        "F460M": 270
+      },
+      "lum": [
+        "F210M",
+        0.5
+      ],
+      "label": "chosen freely: wide cool hues, 50 % luminance from F210M"
+    },
+    "E_cool": {
+      "hues": {
+        "F140M": 155,
+        "F210M": 185,
+        "F300M": 215,
+        "F460M": 240
+      },
+      "lum": [
+        "F210M",
+        0.5
+      ],
+      "label": "chosen freely: cool hues without red, 50 % luminance from F210M"
+    },
+    "G_white_clouds": {
+      "hues": {
+        "F140M": 200,
+        "F210M": 180,
+        "F300M": 0,
+        "F460M": 225
+      },
+      "sat": {
+        "F300M": 0.0
+      },
+      "lum": [
+        "F210M",
+        0.5
+      ],
+      "label": "chosen freely, inspired by Neptune's visible-light colour: F300M without colour (bright clouds white), 50 % luminance from F210M"
+    },
+    "G2_rings": {
+      "hues": {
+        "F140M": 200,
+        "F210M": 180,
+        "F300M": 0,
+        "F460M": 225
+      },
+      "sat": {
+        "F300M": 0.0
+      },
+      "weights": {
+        "F210M": 2.0
+      },
+      "lum": [
+        "F210M_a0.005",
+        0.6
+      ],
+      "label": "as G, F210M weight 2, 60 % luminance from F210M stretched with a = 0.005"
+    }
+  },
+  "exported": [
+    "A_chromatic",
+    "G_white_clouds"
+  ]
+}
