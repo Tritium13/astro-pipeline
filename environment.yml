@@ -12,6 +12,7 @@ dependencies:
   - astropy          # FITS I/O, WCS, visualization (stretches/normalization)
   - astroquery       # MAST queries and downloads
   - reproject        # resample filters onto a common WCS grid ("registration")
+  - scipy            # image filters, distance transform (used by astropipe)
   - scikit-image     # optional: extra image ops, star masking etc.
   - pillow           # PNG/JPEG export
   - tifffile         # 16-bit TIFF export

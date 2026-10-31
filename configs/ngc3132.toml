@@ -54,7 +54,7 @@ aspect = 1.0
 [caption]
 title = "Southern Ring Nebula (NGC 3132) – JWST NIRCam"
 description = "Planetary nebula in the constellation Vela, observed on 3 June 2022 with NIRCam on the James Webb Space Telescope (Early Release Observations, programme 2733)."
-filter_source = "Line identifications are approximate (to be checked against the JWST documentation)."
+filter_source = "Line identifications after the JWST NIRCam filter documentation and Pontoppidan et al. 2022 (arXiv:2207.13067): F187N Paschen-α, F405N Brackett-α, F212N and F470N H2 lines; F090W/F356W broadband."
 credits = "Data: NASA, ESA, CSA, STScI (JWST Early Release Observations, programme 2733), retrieved via MAST. Processing: Tritium13."
 
 [caption.colour_names.C_physical]

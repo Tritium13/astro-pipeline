@@ -175,50 +175,50 @@ def write_report(cand, result, path, offset_warn_px=0.5, bad_frac_warn=1e-3):
     e, st = result["export"], result["stretch"]
     warn = []
     if e.get("center_mode") == "interior":
-        warn.append("Ausschnitt um die innerste Stelle des Bildfelds (kein zentrales Objekt erkannt) – Motivwahl von Hand prüfen.")
+        warn.append("Crop around the most interior point of the field (no central object detected) – check the choice of subject by hand.")
     big = {b: v for b, v in result["star_offsets_px"].items() if v is not None and v > offset_warn_px}
     if big:
-        warn.append("Großer Sternversatz innerhalb einer Beobachtung: "
+        warn.append("Large star offset within one observation: "
                     + ", ".join(f"{b} {v:.2f} px" for b, v in big.items())
-                    + " – evtl. gesättigte Sterne/Galaxien als Messpunkte; auf Farbsäume an Sternen achten.")
+                    + " – possibly saturated stars/galaxies used as fiducials; look for colour fringes at stars.")
     holes = st.get("saturated_holes_filled_px", {})
     npx = result.get("grid_shape") and result["grid_shape"][0] * result["grid_shape"][1]
     bad = {b: v["bad_px"] for b, v in holes.items() if isinstance(v, dict) and v.get("bad_px", 0) > 0}
     if npx:
         bad = {b: v / npx for b, v in bad.items() if v / npx > bad_frac_warn}
         if bad:
-            warn.append("Viele defekte/markierte Pixel aufgefüllt: "
+            warn.append("Many bad/flagged pixels filled: "
                         + ", ".join(f"{b} {100 * v:.2f} %" for b, v in bad.items()))
     if e.get("brightness_center_yx") and e.get("center_mode") == "interior":
-        warn.append("Helligkeitsschwerpunkt (rotes Kreuz in der Übersicht) liegt an einer Lücke oder am Rand – "
-                    "vermutlich liegt das Hauptobjekt in einer Detektorlücke.")
+        warn.append("Intensity-weighted centre (red cross in the overview) lies at a gap or at the edge – "
+                    "the main object probably lies in a detector gap.")
     if len(st["sky_boxes"]["yx"]) < 3:
-        warn.append(f"Nur {len(st['sky_boxes']['yx'])} Himmelsboxen – Hintergrund unsicher.")
+        warn.append(f"Only {len(st['sky_boxes']['yx'])} sky boxes – background uncertain.")
     au = (result.get("clean") or {}).get("auto")
     if au:
         strong = {b: max(m["stripes_rows"], m["stripes_columns"]) for b, m in au["measured"].items()
                   if au["chosen"][b]["method"] != "none"}
-        kind = "leeres Feld (Himmel überwiegt)" if au["empty_field"] else "Objekt füllt das Feld"
+        kind = "empty field (sky dominates)" if au["empty_field"] else "object fills the field"
         if strong:
-            warn.append(f"Streifen erkannt ({kind}): " + ", ".join(f"{b} {v:.2f}" for b, v in strong.items())
-                        + " (Streifenstärke / Himmelsrauschen; Rauschen allein ≈ 0,06). Korrigiert mit "
+            warn.append(f"Stripes detected ({kind}): " + ", ".join(f"{b} {v:.2f}" for b, v in strong.items())
+                        + " (stripe strength / sky noise; pure noise ≈ 0.06). Corrected with "
                         + ", ".join(sorted({au['chosen'][b]['method'] for b in strong}))
-                        + ("+ 2-D-Hintergrund" if au["empty_field"] else "")
-                        + ". Reste sind bei versetzten Einzelaufnahmen im i2d nicht ganz entfernbar (bekannte Einschränkung).")
-    warn.append("Immer von Hand prüfen (nicht automatisch erkennbar): Streulicht/diffuse Schleier in einzelnen Filtern, "
-                "Streifen (dann `clean.method = \"local\"`), dunklere Bänder zwischen Detektoren.")
-    lines = [f"# Entdecker-Bericht: {cand['target']} ({cand['prefix']})", "",
-             f"- Programm: {cand['program']} – {cand['title']}",
-             f"- Position: RA {cand['ra']:.5f}, Dec {cand['dec']:.5f}; Klassifikation: {cand['classification']}",
-             f"- Filter: {', '.join(sorted(cand['bands']))}",
-             f"- Ausschnitt: {e['size_arcmin'][0]:.2f}′ × {e['size_arcmin'][1]:.2f}′ (Mitte: {e.get('center_mode')})",
-             f"- Himmelsboxen: {len(st['sky_boxes']['yx'])}",
-             f"- Laufzeit: {result['runtime_s']} s",
-             f"- Konfiguration: `{result['config']}`"]
+                        + (" + 2-D background" if au["empty_field"] else "")
+                        + ". Residuals cannot be fully removed in the i2d when single exposures are offset (known limitation).")
+    warn.append("Always check by hand (not detected automatically): stray light/diffuse veils in single filters, "
+                "stripes (then `clean.method = \"local\"`), darker bands between detectors.")
+    lines = [f"# Explorer report: {cand['target']} ({cand['prefix']})", "",
+             f"- Programme: {cand['program']} – {cand['title']}",
+             f"- Position: RA {cand['ra']:.5f}, Dec {cand['dec']:.5f}; classification: {cand['classification']}",
+             f"- Filters: {', '.join(sorted(cand['bands']))}",
+             f"- Crop: {e['size_arcmin'][0]:.2f}′ × {e['size_arcmin'][1]:.2f}′ (centre: {e.get('center_mode')})",
+             f"- Sky boxes: {len(st['sky_boxes']['yx'])}",
+             f"- Runtime: {result['runtime_s']} s",
+             f"- Configuration: `{result['config']}`"]
     ov = [f for f in e.get("files", {}).get(next(iter(e.get("files", {})), ""), []) if f.endswith("_overview.jpg")]
     if ov:
-        lines.append(f"- Übersicht (ganzes Feld, Rahmen = Ausschnitt): `{ov[0]}`")
-    lines += ["", "## Hinweise", ""]
+        lines.append(f"- Overview (whole field, frame = crop): `{ov[0]}`")
+    lines += ["", "## Notes", ""]
     lines += [f"- {w}" for w in warn]
     text = "\n".join(lines) + "\n"
     Path(path).write_text(text, encoding="utf-8")

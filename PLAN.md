@@ -69,7 +69,7 @@ Eine Etappe ist erst fertig, wenn:
 - [x] Orientierung per WCS geprüft: Norden oben, Osten links
 - [x] 16-bit TIFF + PNG (voll, `output/full_res/`, nicht im Git) + JPEG (Web, `output/`)
 - [x] Bildunterschrift (englisch) aus Parameterdateien erzeugt: Programm, Filter, Farbzuordnung, Bearbeitung, Credits
-- [ ] Credits-Hinweise von STScI/MAST und Linienzuordnung der Filter vor Veröffentlichung prüfen
+- [x] Credits-Hinweise von STScI/MAST und Linienzuordnung der Filter geprüft (31.10.2026, s. Etappe 8)
 - [x] Ergebnis/Fazit in `06_export.ipynb` ausgefüllt
 - [x] Commit + Push
 
@@ -91,8 +91,12 @@ Eine Etappe ist erst fertig, wenn:
 - [ ] Ideen NGC 3132: Variante D (Breitband fast weiß → weiße Sterne), größerer/anderer Ausschnitt für die äußeren Schalen, Maßstab + Kompass
 
 ### Etappe 8 – Veröffentlichung
-- [ ] Entscheiden: Repo vollständig auf Englisch (README, Markdown-Zellen, Fazits)?
-- [ ] README mit Beispielbildern, Lizenz, Datennachweis
+- [x] Entschieden (31.10.2026): Notebooks, README und Explorer-Bericht auf Englisch; `PLAN.md` und `docs/worklog.md` bleiben als deutsches Arbeitsprotokoll (Branch `english`)
+- [x] Alle Markdown-Zellen der Notebooks 00–11 übersetzt (Code und Ausgaben unverändert); fehlende Ergebnis-Zellen in 08, 08a, 08b ergänzt; überholte Aussagen (Lückenfüllung, 09a) mit Hinweis versehen
+- [x] README (englisch) mit Beispielbildern, Kurzanleitung, ehrlichen Hinweisen, Datennachweis; `LICENSE` (MIT)
+- [x] Credits geprüft: MAST-Daten überwiegend gemeinfrei, Nennung von Mission und STScI erwartet (MAST Data Use Policy); JWST-Standard-Danksagung in README übernommen; Bild-Credit „NASA, ESA, CSA, STScI“ + eigene Bearbeitung
+- [x] Linienzuordnung NGC 3132 geprüft (NIRCam-Filterdoku; Pontoppidan et al. 2022, arXiv:2207.13067): F187N Paα, F405N Brα, F212N/F470N H₂ → in `configs/ngc3132.toml`
+- [ ] Bildunterschriften neu erzeugen (`run.py` für ngc3132, ngc6720, ngc5643), Branch prüfen und mergen
 - [ ] Repo öffentlich schalten
 
 ### Etappe 11 (Idee) – Planeten
@@ -112,7 +116,7 @@ Ziel: beliebige passende JWST-Bilddaten mit derselben Pipeline per Skript verarb
 - [ ] Stufe 2b (optional): NIRCam + MIRI in der Konfiguration (Instrumentenversatz, LRGB, Schärfe angleichen)
 - [x] Stufe 3: Entdecker-Modus (`python -m astropipe.explore`, `11_explore.ipynb`): zufälliges 30-Tage-Fenster, Gruppierung nach Beobachtung, ≥ 3 Filter, ≤ 3 GB, Standard-Konfiguration in `configs/explore/`, Lauf + Kurzbericht mit Warnhinweisen. Erster Fund: Feld im Programm 8277 (NGC 1527, Halo-Survey), tiefes Feld mit vielen Hintergrundgalaxien
 - [x] Dabei gefunden und behoben: (1) Ausschnitt scheitert bei Feldern ohne zentrales Objekt → `center = "auto"` mit Rückfall auf die innerste Stelle; (2) **Fehler seit Etappe 4:** NaN-Lücken aus defekten Pixeln wurden wie gesättigte Kerne weiß gefüllt → `stretch.classify_holes` (lokaler Kontrast innerer Ring vs. äußerer Ring); defekte Pixel bekommen den Umgebungsmedian
-- [ ] Notebook-Ergebnisse von gestern enthalten die weißen Kleckse → als Referenz gelten ab jetzt die Skript-Ergebnisse (`output/runs/`); `09a` (NIRCam + MIRI) bei Gelegenheit neu laufen lassen
+- [x] Notebook-Ergebnisse von gestern enthalten die weißen Kleckse → als Referenz gelten ab jetzt die Skript-Ergebnisse (`output/runs/`); `09a` (NIRCam + MIRI) neu gelaufen (31.10.2026)
 - [ ] Explorer: einzelner blauer Pixel im NGC-1527-Feld prüfen (Artefakt oder Objekt?)
 - [x] Übersichtsbild pro Lauf (`*_overview.jpg`: ganzes Feld, Rahmen = Ausschnitt, rotes Kreuz = Helligkeitsschwerpunkt); Bericht verlinkt es
 - [x] Cache-Fehler behoben: Registrierung und Streifenkorrektur nutzten Zwischenergebnisse nur nach Dateinamen wieder → jetzt Prüfung von Quelle (`SRCFILE`), Zeitstempel und Einstellungen (`ASTCLEAN`)
@@ -153,7 +157,8 @@ Ziel: beliebige passende JWST-Bilddaten mit derselben Pipeline per Skript verarb
 | 31.10.2026 | Reststreifen in F150W/F200W bei J0217-0208 als bekannte Einschränkung akzeptieren, nicht kosmetisch verstecken | Saubere Lösung nur an den Einzelaufnahmen (Etappe 10). Negatives `black_k` würde schwache Galaxien mit verstecken | angenommen |
 | 31.10.2026 | Mehrere Beobachtungen pro Filter (`data.obs` als Liste): einzeln korrigieren und reprojizieren, Hintergrund der weiteren Beobachtung per Median-Differenz im Überlapp angleichen, dann mitteln | Füllt Detektorlücken (NGC 5643); Hintergrundunterschiede zwischen den Tagen klein (≈ 0,01 MJy/sr), Sternversatz 0,1 px. Cepheiden-Helligkeitsänderung zwischen den Tagen für ein Farbbild vernachlässigt | angenommen |
 | 31.10.2026 | Ausschnitt von Hand möglich (`export.center = [y, x]`, `size_px`); verbleibende Lücken bleiben schwarz | Automatik weicht Lücken aus und verfehlt dann das Motiv; Lücken nicht künstlich füllen | angenommen |
-| – | Repo-Sprache: komplett Englisch? | am Ende (Etappe 8) entscheiden | offen |
+| 31.10.2026 | Repo-Sprache: Notebooks, README, Code und Berichte englisch; PLAN/worklog deutsch | Öffentliches Publikum liest Notebooks und README; Plan und Worklog sind mein Arbeitsprotokoll | angenommen |
+| 31.10.2026 | Lizenz: MIT für den Code | kurz, verbreitet; Daten/Credits davon getrennt | angenommen |
 | 30.10.2026 | Gesättigte Sternkerne: NaN-Lücken innerhalb des Bildes (`binary_fill_holes`) mit dem Maximalwert des Filters füllen | Pipeline setzt gesättigte Pixel auf NaN; ohne Füllung würden Sterne über die gemeinsame Gültigkeitsmaske in allen Filtern schwarz. Kosmetischer Eingriff (≈160–510 px pro Filter) | ersetzt am 31.10.2026 (Einstufung nach lokalem Kontrast, s. o.) |
 | 30.10.2026 | Farbzuordnung: **C – physikalisch gruppiert** (F187N 200°, F405N 225° → Blau/Cyan, ionisiertes Gas; F212N 20°, F470N 0° → Orange/Rot, molekularer Wasserstoff; F090W 55°, F356W 40° → Gelb, Breitband/Sterne), alle Gewichte 1 | Größter Kontrast zwischen innerer Blase und äußeren Schalen: jede physikalische Komponente bleibt in einer Farbfamilie, statt sich wie bei A/B aus Gegenfarben zu blassen Tönen zu mischen. Sieht dem veröffentlichten NASA-Bild am ähnlichsten. **Frei gewählt, nicht chromatisch**; bekannte Folge: Sterne gelbstichig. A und B bleiben in `params/ngc3132_color.json` dokumentiert | angenommen |
 

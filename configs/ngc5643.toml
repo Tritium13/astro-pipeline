@@ -44,7 +44,7 @@ margin = 100
 aspect = 1.0
 
 [caption]
-title = "N5643 – JWST NIRCam"
-description = "JWST NIRCam imaging, programme 1685 ('Uncrowding the Cepheids for an Improved Determination of the Hubble Constant')."
+title = "NGC 5643 – JWST NIRCam"
+description = "Barred spiral galaxy, JWST NIRCam imaging from programme 1685 ('Uncrowding the Cepheids for an Improved Determination of the Hubble Constant'), two observations (July 2023) combined. The thin black wedge right of the nucleus is sky not covered by either observation."
 filter_source = ""
-credits = "Data: NASA, ESA, CSA, STScI (programme 1685), retrieved via MAST. Processing: Tritium13 (automatic explorer run, default parameters)."
+credits = "Data: NASA, ESA, CSA, STScI (programme 1685), retrieved via MAST. Processing: Tritium13 (default colours A, crop set by hand)."

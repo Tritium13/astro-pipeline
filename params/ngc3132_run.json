@@ -18,6 +18,10 @@
     "F405N": 0.42413407735743786,
     "F470N": 0.0
   },
+  "grid_shape": [
+    3127,
+    3121
+  ],
   "stretch": {
     "saturated_holes_filled_px": {
       "F090W": {
@@ -200,16 +204,21 @@
       1.6548,
       1.6548
     ],
+    "brightness_center_yx": [
+      1570,
+      1576
+    ],
     "north_up": true,
     "east_left": true,
     "files": {
       "C_physical": [
-        "../output/full_res/ngc3132_C_physical_16bit.tif",
-        "../output/full_res/ngc3132_C_physical_full.png",
-        "../output/runs/ngc3132_C_physical_web.jpg",
-        "../output/runs/ngc3132_C_physical_caption.md"
+        "output/full_res/ngc3132_C_physical_16bit.tif",
+        "output/full_res/ngc3132_C_physical_full.png",
+        "output/runs/ngc3132_C_physical_web.jpg",
+        "output/runs/ngc3132_C_physical_caption.md",
+        "output/runs/ngc3132_C_physical_overview.jpg"
       ]
     }
   },
-  "runtime_s": 9.5
+  "runtime_s": 13.8
 }

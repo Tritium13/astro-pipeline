@@ -254,3 +254,9 @@ python -m astropipe.explore --no-run     # nur suchen + Konfiguration schreiben
 - MAST, Programm 1685: alle sechs Galaxien je zwei Beobachtungen; N5643 o011 (07.07.2023) und o012 (22.07.2023), Umrisse (`s_region`) zeigen vertauschte Module, leichte Drehung → kombinieren.
 - `run.py`: `data.obs` als Liste, Schlüssel `<band>_<oNNN>`, `combine_observations` (Median-Offset im Überlapp, Mittelwert). `configs/ngc5643.toml`: Raster 7724 × 2882, Offsets −0,013/+0,008/+0,014, Sternversatz 0,1 px, Laufzeit 643 s inkl. 2,7 GB Download. Ausschnitt von Hand `[3860, 1597]`, 2100 px.
 - Planeten in MAST (NIRCam, Stufe 3): Jupiter 1022/1373/9022, Mars 1415/2787, Neptun 2739, Uranus 2739/2768/6379/8975/9482; Saturn nicht gefunden → Etappe 11 (Idee).
+
+## 31.10.2026 (Abend) – Etappe 8: Übersetzung und Veröffentlichung vorbereitet
+
+- Branch `english`. Markdown-Zellen aller Notebooks per Skript ersetzt (JSON-Format wie Jupyter: `indent=1`, `sort_keys`, `ensure_ascii=False`), Code/Ausgaben unverändert; einzige Code-Änderung: Orientierungstext in `06_export` (Zelle 7).
+- `explore.write_report` auf Englisch; README neu (englisch), `LICENSE` (MIT), `scipy` explizit in `environment.yml`.
+- Quellen: MAST Data Use Policy (https://archive.stsci.edu/data_use.html), MAST Mission Acknowledgements (https://archive.stsci.edu/acknowledgments.html), NIRCam-Filter (https://jwst-docs.stsci.edu/jwst-near-infrared-camera/nircam-instrumentation/nircam-filters), Pontoppidan et al. 2022 (arXiv:2207.13067).

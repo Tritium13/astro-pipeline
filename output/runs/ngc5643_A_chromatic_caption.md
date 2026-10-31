@@ -1,6 +1,6 @@
-# N5643 – JWST NIRCam
+# NGC 5643 – JWST NIRCam
 
-JWST NIRCam imaging, programme 1685 ('Uncrowding the Cepheids for an Improved Determination of the Hubble Constant'). Field of view ≈ 2.2 × 2.2 arcmin, north up, east left.
+Barred spiral galaxy, JWST NIRCam imaging from programme 1685 ('Uncrowding the Cepheids for an Improved Determination of the Hubble Constant'), two observations (July 2023) combined. The thin black wedge right of the nucleus is sky not covered by either observation. Field of view ≈ 2.2 × 2.2 arcmin, north up, east left.
 
 ## Colour assignment (A_chromatic: hues by wavelength, 240° to 0°)
 
@@ -18,4 +18,4 @@ calibrated stage-3 images (`_i2d.fits`) from MAST → row destriping (auto backg
 
 ## Credits
 
-Data: NASA, ESA, CSA, STScI (programme 1685), retrieved via MAST. Processing: Tritium13 (automatic explorer run, default parameters).
+Data: NASA, ESA, CSA, STScI (programme 1685), retrieved via MAST. Processing: Tritium13 (default colours A, crop set by hand).

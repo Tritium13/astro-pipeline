@@ -25,6 +25,10 @@
     "F300M": 0.024262361532919906,
     "F335M": 0.0
   },
+  "grid_shape": [
+    3311,
+    3312
+  ],
   "stretch": {
     "saturated_holes_filled_px": {
       "F162M": {
@@ -165,16 +169,21 @@
       1.6401000000000001,
       1.2306
     ],
+    "brightness_center_yx": [
+      1671,
+      1608
+    ],
     "north_up": true,
     "east_left": true,
     "files": {
       "C_physical": [
-        "../output/full_res/ngc6720_C_physical_16bit.tif",
-        "../output/full_res/ngc6720_C_physical_full.png",
-        "../output/runs/ngc6720_C_physical_web.jpg",
-        "../output/runs/ngc6720_C_physical_caption.md"
+        "output/full_res/ngc6720_C_physical_16bit.tif",
+        "output/full_res/ngc6720_C_physical_full.png",
+        "output/runs/ngc6720_C_physical_web.jpg",
+        "output/runs/ngc6720_C_physical_caption.md",
+        "output/runs/ngc6720_C_physical_overview.jpg"
       ]
     }
   },
-  "runtime_s": 6.9
+  "runtime_s": 92.6
 }
