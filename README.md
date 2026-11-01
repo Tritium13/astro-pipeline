@@ -10,6 +10,13 @@ A hobby project, inspired by amateur processing of published JWST data. Every de
 (and every mistake that was found and fixed) is documented, so that each image can be
 recomputed from the data and the parameter files alone.
 
+<p align="center">
+  <img src="output/runs/explore_jw12591_o003_t001_star_forming_pillar_A_chromatic_web.jpg" alt="Star-forming pillar, JWST NIRCam (programme 12591)" width="420"><br>
+  <em>Star-forming pillar (programme 12591, data released October 2026) – made by the script with default
+  parameters (<code>python -m astropipe.explore --program 12591</code>); the only manual step was the
+  portrait crop. NIRCam, 6 filters, colours in wavelength order.</em>
+</p>
+
 | NGC 3132 – Southern Ring Nebula | NGC 6720 – Ring Nebula | NGC 6720 – NIRCam + MIRI |
 |---|---|---|
 | ![NGC 3132](output/runs/ngc3132_C_physical_web.jpg) | ![NGC 6720](output/runs/ngc6720_C_physical_web.jpg) | ![NGC 6720 NIRCam + MIRI](output/ngc6720_nircam_miri_W2_ionisation_web.jpg) |
@@ -56,6 +63,9 @@ python -m astropipe.run configs/ngc3132.toml
 
 # explorer mode: pick a random suitable public NIRCam data set and make a preview
 python -m astropipe.explore --seed 7
+
+# or a specific programme (e.g. newly released data)
+python -m astropipe.explore --program 12591 --max-gb 7
 ```
 
 Results: web JPEG + caption in `output/runs/`, full-resolution TIFF/PNG in
