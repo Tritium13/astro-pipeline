@@ -1,0 +1,91 @@
+{
+  "files": {
+    "F212N": "jw01373-o008_t006_nircam_clear-f212n_i2d.fits",
+    "F335M": "jw01373-o008_t006_nircam_clear-f335m_i2d.fits"
+  },
+  "pair": "jw01373-o008_t006_",
+  "grid": {
+    "centre_radec": [
+      8.393415315344322,
+      2.1117350106656474
+    ],
+    "pixel_arcsec": 0.03074658403493717,
+    "size_px": 1626
+  },
+  "disk_centre_yx": {
+    "F212N": [
+      828.7066902847799,
+      749.7380188036517
+    ],
+    "F335M": [
+      863.6702680650344,
+      760.1157271038498
+    ]
+  },
+  "use_destripe": true,
+  "use_bg2d": false,
+  "unify_saturated": true,
+  "sky_boxes": [
+    [
+      50,
+      1500
+    ],
+    [
+      1425,
+      1575
+    ],
+    [
+      1575,
+      50
+    ],
+    [
+      100,
+      0
+    ]
+  ],
+  "stretch": {
+    "F212N": {
+      "black_k": 0.5,
+      "white_pct": 99.9,
+      "a": 0.2,
+      "white_value": 20612.263671875,
+      "bkg": -5.944060325622559,
+      "noise": 1.8008365631103516,
+      "spread": 4.469660758972168,
+      "black": -0.9004182815551758,
+      "white": 20612.263671875
+    },
+    "F335M": {
+      "black_k": 0.5,
+      "white_pct": 99.9,
+      "a": 0.2,
+      "white_value": 1741.0347900390625,
+      "bkg": 1.4516634941101074,
+      "noise": 0.14689098298549652,
+      "spread": 0.6813442707061768,
+      "black": -0.07344549149274826,
+      "white": 1741.0347900390625
+    }
+  },
+  "colour_variants": {
+    "A_bicolour": {
+      "hues": {
+        "F212N": 240,
+        "SYN": 120,
+        "F335M": 0
+      },
+      "label": "chromatic order: F212N blue, synthetic mean channel green, F335M red"
+    },
+    "B_warm_bands": {
+      "hues": {
+        "F212N": 35,
+        "F335M": 200
+      },
+      "label": "chosen freely: F212N gold-orange, F335M cyan-blue"
+    }
+  },
+  "exported": [
+    "A_bicolour",
+    "B_warm_bands"
+  ]
+}

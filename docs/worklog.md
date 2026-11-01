@@ -280,3 +280,14 @@ python -m astropipe.explore --no-run     # nur suchen + Konfiguration schreiben
 - Scheibenmitte: F444W/F277W/F150W zeigen vor allem die helle Polregion (vermutet) → Referenz F115W (ganze Scheibe). F115W↔F356W 1,7 px; Abweichungen der anderen = Kappe, nicht Versatz (gleichzeitige Paare).
 - 2-D-Hintergrund zog den äußeren Lichthof ungleichmäßig ab → `USE_BG2D = False`. Streckung a = 0,02; F356W-Weißpunkt aus dem Feld (99,95 %).
 - Farbe: A (goldene Ringe), A_lrgb, B_ice (F356W grau → Ringe rosa: einziger Rotbeitrag), C_gold_rings (rot), D_silver_rings (F356W als weißes Licht überlagert) → Export A + D (`output/uranus_*`), Parameter `params/uranus.json`.
+
+## 01.11.2026 – Etappe 11: Jupiter
+
+- Bestand per `Abfragen.ipynb` (zuletzt freigegebene Daten + Jupiter-Liste). Gewählt: Programm 1373, o008, F212N + F335M gleichzeitig (27.07.2022, 10:51–11:00 UTC) → keine Rotation zwischen den Filtern. Entdrehung mehrerer Paare bewusst auf später verschoben.
+- `14_jupiter.ipynb` nach dem Uranus-Muster: Nahaufnahme 50″, Raster 1626² bei 0,0307″/px, Planet ≈ 40″.
+- Fehler 1: `disk_mask` erfasste nur 12″ → `planet_mask` (5 % des 99-%-Perzentils, größte Fläche, Löcher gefüllt).
+- Fehler 2: gesättigte Randsicheln und Bogen um den Großen Roten Fleck in F335M wurden schwarz → NaN auf dem Planeten (Maske + 15 px Dilatation) = gesättigt → weiß, in `sat_union`. F212N: 5008 px defekt/verworfen, 2888 px gesättigt; F335M: 2213 bzw. 28 880 px.
+- Fehler 3: Weißpunkt aus den aufgefüllten Pixeln → `disk = planet & ~sat_union`. Weißpunkte F212N 20 612, F335M 1741.
+- Diagnose-Zelle: verworfene (NaN-)Pixel liegen gehäuft an scharfen, bewegten Strukturen (GRS-Rand, kleine Wolken) – vermutlich Ausreißererkennung der Pipeline wegen Jupiters Drehung zwischen den Dithern (nicht geprüft). Nach dem Füllen nicht mehr sichtbar.
+- a = 0,1 vs. 0,2 verglichen → 0,2 (mehr Banddetail).
+- Export A_bicolour + B_warm_bands (`output/jupiter_*`), Parameter `params/jupiter.json`.
