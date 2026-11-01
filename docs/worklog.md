@@ -292,3 +292,11 @@ python -m astropipe.explore --no-run     # nur suchen + Konfiguration schreiben
 - a = 0,1 vs. 0,2 verglichen → 0,2 (mehr Banddetail).
 - Export A_bicolour + B_warm_bands (`output/jupiter_*`), Parameter `params/jupiter.json`.
 - Nachtrag: dunkelblaue Punkte im Farbbild A = **nicht markierte dunkle Flecken nur in F335M** (55 auf der Scheibe, 15–50 % unter der Umgebung, Median ≈ −34 %); schon im MAST-i2d (133 lokale Minima, volles Gewicht, meist alle 3 Dither beteiligt), nicht deckungsgleich mit den NaN-Pixeln. Vermutung: ein schlechter Wert in einer von drei Aufnahmen (nicht geprüft). Neuer Schritt 5b: < 0,85 × 15-px-Median, ≤ 40 px, Scheibe ohne Rand → lokaler Median; bei 0,9 fände die Suche in F212N schon 80 echte Strukturen. Vorher/Nachher in Schritt 7b, `output/jupiter_dark_spots_comparison.jpg`.
+
+## 01.11.2026 (Mittag) – neue MAST-Daten per Skript: Säule (Programm 12591)
+
+- Explorer erweitert: `--program N` (optional `--obs <prefix>`) wählt eine Beobachtung aus einem bestimmten Programm statt eines Zufallsfensters; `write_config` übernimmt `--max-gb` (vorher fest 3,0 → Download hätte abgebrochen).
+- `python -m astropipe.explore --program 12591 --max-gb 7 --no-run` → `jw12591-o003_t001` („Star-Forming-Pillar“, beobachtet 27.05.2026, freigegeben 29.10.2026), 6 Filter F090W/F187N/F212N/F277W/F335M/F470N, 6,28 GB.
+- Lauf `python -m astropipe.run configs/explore/jw12591-o003_t001.toml`: 967 s inkl. Download; Raster 5691 × 2399 px (0,063″); Feldtyp „ausgedehntes Objekt“, Streifen ≤ 0,07 → keine Korrektur; Sternversatz 0,09–0,23 px; RAM reichte (16 GB).
+- Automatischer Ausschnitt (Helligkeitsschwerpunkt, 1610² px) schnitt den Säulenkopf mit dem jungen Stern ab → von Hand Hochformat `center = [2810, 1290]`, `size_px = [3400, 1900]` (2,0′ × 3,6′); zweiter Lauf 133 s (Cache).
+- Standardparameter ohne weitere Anpassung; Farbe A_chromatic.

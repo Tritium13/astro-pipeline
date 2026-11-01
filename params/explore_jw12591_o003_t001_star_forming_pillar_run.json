@@ -1,0 +1,325 @@
+{
+  "config": "configs/explore/jw12591-o003_t001.toml",
+  "astropipe": "0.1.0",
+  "files": {
+    "F090W": "jw12591-o003_t001_nircam_clear-f090w_i2d.fits",
+    "F187N": "jw12591-o003_t001_nircam_clear-f187n_i2d.fits",
+    "F212N": "jw12591-o003_t001_nircam_clear-f212n_i2d.fits",
+    "F277W": "jw12591-o003_t001_nircam_clear-f277w_i2d.fits",
+    "F335M": "jw12591-o003_t001_nircam_clear-f335m_i2d.fits",
+    "F470N": "jw12591-o003_t001_nircam_f444w-f470n_i2d.fits"
+  },
+  "clean": {
+    "method": "auto",
+    "auto": {
+      "empty_field": false,
+      "measured": {
+        "F090W": {
+          "sky_fraction": 0.84,
+          "structure": 3.26,
+          "stripes_sky": {
+            "rows": 0.517,
+            "columns": 0.947
+          },
+          "stripes_local": {
+            "rows": 0.015,
+            "columns": 0.017
+          },
+          "stripes_rows": 0.015,
+          "stripes_columns": 0.017
+        },
+        "F187N": {
+          "sky_fraction": 0.873,
+          "structure": 3.32,
+          "stripes_sky": {
+            "rows": 0.569,
+            "columns": 0.952
+          },
+          "stripes_local": {
+            "rows": 0.008,
+            "columns": 0.008
+          },
+          "stripes_rows": 0.008,
+          "stripes_columns": 0.008
+        },
+        "F212N": {
+          "sky_fraction": 0.609,
+          "structure": 3.39,
+          "stripes_sky": {
+            "rows": 0.59,
+            "columns": 0.853
+          },
+          "stripes_local": {
+            "rows": 0.07,
+            "columns": 0.055
+          },
+          "stripes_rows": 0.07,
+          "stripes_columns": 0.055
+        },
+        "F277W": {
+          "sky_fraction": 0.446,
+          "structure": 3.47,
+          "stripes_sky": {
+            "rows": 0.508,
+            "columns": 0.872
+          },
+          "stripes_local": {
+            "rows": 0.014,
+            "columns": 0.021
+          },
+          "stripes_rows": 0.014,
+          "stripes_columns": 0.021
+        },
+        "F335M": {
+          "sky_fraction": 0.489,
+          "structure": 5.11,
+          "stripes_sky": {
+            "rows": 0.869,
+            "columns": 1.254
+          },
+          "stripes_local": {
+            "rows": 0.03,
+            "columns": 0.034
+          },
+          "stripes_rows": 0.03,
+          "stripes_columns": 0.034
+        },
+        "F470N": {
+          "sky_fraction": 0.597,
+          "structure": 4.23,
+          "stripes_sky": {
+            "rows": 0.643,
+            "columns": 1.128
+          },
+          "stripes_local": {
+            "rows": 0.026,
+            "columns": 0.026
+          },
+          "stripes_rows": 0.026,
+          "stripes_columns": 0.026
+        }
+      },
+      "chosen": {
+        "F090W": {
+          "method": "none",
+          "axis": "columns",
+          "smooth": 51,
+          "background2d_cell": 0
+        },
+        "F187N": {
+          "method": "none",
+          "axis": "rows",
+          "smooth": 51,
+          "background2d_cell": 0
+        },
+        "F212N": {
+          "method": "none",
+          "axis": "rows",
+          "smooth": 51,
+          "background2d_cell": 0
+        },
+        "F277W": {
+          "method": "none",
+          "axis": "columns",
+          "smooth": 51,
+          "background2d_cell": 0
+        },
+        "F335M": {
+          "method": "none",
+          "axis": "columns",
+          "smooth": 51,
+          "background2d_cell": 0
+        },
+        "F470N": {
+          "method": "none",
+          "axis": "rows",
+          "smooth": 51,
+          "background2d_cell": 0
+        }
+      }
+    }
+  },
+  "moving_target": null,
+  "star_offsets_px": {
+    "F090W": 0.23141764408780277,
+    "F187N": 0.08861131085999589,
+    "F212N": 0.10255518898638885,
+    "F277W": null,
+    "F335M": null,
+    "F470N": 0.0
+  },
+  "grid_shape": [
+    5691,
+    2399
+  ],
+  "stretch": {
+    "saturated_holes_filled_px": {
+      "F090W": {
+        "saturated_px": 1593,
+        "bad_px": 9520
+      },
+      "F187N": {
+        "saturated_px": 108,
+        "bad_px": 9428
+      },
+      "F212N": {
+        "saturated_px": 118,
+        "bad_px": 10019
+      },
+      "F277W": {
+        "saturated_px": 5788,
+        "bad_px": 10862
+      },
+      "F335M": {
+        "saturated_px": 2094,
+        "bad_px": 9332
+      },
+      "F470N": {
+        "saturated_px": 0,
+        "bad_px": 9206
+      }
+    },
+    "sky_boxes": {
+      "size_px": 150,
+      "yx": [
+        [
+          4500,
+          1950
+        ],
+        [
+          5025,
+          1500
+        ],
+        [
+          5325,
+          1050
+        ],
+        [
+          5250,
+          1950
+        ],
+        [
+          5325,
+          525
+        ],
+        [
+          4200,
+          450
+        ]
+      ],
+      "scores": [
+        0.1640099734067917,
+        0.19071537256240845,
+        0.21372085809707642,
+        0.23038533329963684,
+        0.24677956104278564,
+        0.2491312325000763
+      ]
+    },
+    "per_band": {
+      "F090W": {
+        "black_k": 0.5,
+        "white_pct": 99.9,
+        "a": 0.05,
+        "bkg": 2.337547779083252,
+        "noise": 0.08686798810958862,
+        "spread": 0.7417511940002441,
+        "black": -0.04343399405479431,
+        "white": 71.96332550048828
+      },
+      "F187N": {
+        "black_k": 0.5,
+        "white_pct": 99.9,
+        "a": 0.05,
+        "bkg": 26.46182632446289,
+        "noise": 0.8424872159957886,
+        "spread": 11.948354721069336,
+        "black": -0.4212436079978943,
+        "white": 161.0279998779297
+      },
+      "F212N": {
+        "black_k": 0.5,
+        "white_pct": 99.9,
+        "a": 0.05,
+        "bkg": 1.3400039672851562,
+        "noise": 0.16424709558486938,
+        "spread": 0.22107470035552979,
+        "black": -0.08212354779243469,
+        "white": 146.53561401367188
+      },
+      "F277W": {
+        "black_k": 0.5,
+        "white_pct": 99.9,
+        "a": 0.05,
+        "bkg": 1.4169909954071045,
+        "noise": 0.07948651909828186,
+        "spread": 0.48217523097991943,
+        "black": -0.03974325954914093,
+        "white": 130.8129425048828
+      },
+      "F335M": {
+        "black_k": 0.5,
+        "white_pct": 99.9,
+        "a": 0.05,
+        "bkg": 1.7031259536743164,
+        "noise": 0.06710141897201538,
+        "spread": 0.5121481418609619,
+        "black": -0.03355070948600769,
+        "white": 145.45303344726562
+      },
+      "F470N": {
+        "black_k": 0.5,
+        "white_pct": 99.9,
+        "a": 0.05,
+        "bkg": 1.6281030178070068,
+        "noise": 0.1073627918958664,
+        "spread": 0.6535685062408447,
+        "black": -0.0536813959479332,
+        "white": 89.57173156738281
+      }
+    }
+  },
+  "colour": {
+    "A_chromatic": {
+      "hue_deg": {
+        "F090W": 240.0,
+        "F187N": 192.0,
+        "F212N": 144.0,
+        "F277W": 96.0,
+        "F335M": 48.0,
+        "F470N": 0.0
+      },
+      "saturation": {},
+      "weights": {},
+      "luminance": null
+    }
+  },
+  "export": {
+    "center_mode": "manual",
+    "center_yx": [
+      2810,
+      1290
+    ],
+    "half_hw": [
+      1700,
+      950
+    ],
+    "size_arcmin": [
+      1.995,
+      3.57
+    ],
+    "brightness_center_yx": null,
+    "north_up": true,
+    "east_left": true,
+    "files": {
+      "A_chromatic": [
+        "output/full_res/explore_jw12591_o003_t001_star_forming_pillar_A_chromatic_16bit.tif",
+        "output/full_res/explore_jw12591_o003_t001_star_forming_pillar_A_chromatic_full.png",
+        "output/runs/explore_jw12591_o003_t001_star_forming_pillar_A_chromatic_web.jpg",
+        "output/runs/explore_jw12591_o003_t001_star_forming_pillar_A_chromatic_caption.md",
+        "output/runs/explore_jw12591_o003_t001_star_forming_pillar_A_chromatic_overview.jpg"
+      ]
+    }
+  },
+  "runtime_s": 132.8
+}

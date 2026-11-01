@@ -5,6 +5,8 @@ Usage (in the project folder):
     python -m astropipe.explore                  # random month, run pipeline
     python -m astropipe.explore --seed 42        # reproducible choice
     python -m astropipe.explore --no-run         # only find a candidate + write config
+    python -m astropipe.explore --program 12591 --no-run   # list a given programme, pick the richest observation
+    python -m astropipe.explore --program 12591 --obs jw12591-o002_t001   # a specific observation
 
 Suitability rules (see PLAN.md, stage 9):
   * NIRCam imaging, calibration level 3, public, science intent
@@ -82,7 +84,7 @@ def slug(text):
     return re.sub(r"[^a-z0-9]+", "_", text.lower()).strip("_")[:40]
 
 
-def write_config(cand, path):
+def write_config(cand, path, max_gb=3.0):
     b = bands_mod.sort_bands(cand["bands"])
     name = f"explore_{cand['prefix'].replace('-', '_')}_{slug(cand['target'])}"
     bands_toml = ", ".join(f'"{x}"' for x in b)
@@ -101,7 +103,7 @@ instrument = "NIRCAM/IMAGE"
 raw_dir = "{name}_nircam"
 obs = "{cand['prefix']}_"
 bands = [{bands_toml}]
-max_gb = 3.0
+max_gb = {max_gb}
 
 [clean]
 method = "auto"          # measures sky fraction + stripe strength per filter and picks the cleaning (see params/*_run.json)
@@ -225,14 +227,43 @@ def write_report(cand, result, path, offset_warn_px=0.5, bad_frac_warn=1e-3):
     return text
 
 
+def find_in_program(program, prefix=None, max_gb=3.0, instrument="NIRCAM/IMAGE", verbose=True):
+    """Pick an observation from a given programme instead of a random window.
+
+    Lists all observations with >= 3 filters; uses `prefix` (e.g. 'jw12591-o002_t001') if given,
+    otherwise the first suitable one with the most filters. Returns (cand, info)."""
+    obs, _ = mast.find_i2d(program, instrument)
+    if len(obs) == 0:
+        raise RuntimeError(f"programme {program}: no public level-3 {instrument} data found")
+    cands = sorted(group_candidates(obs), key=lambda c: (-len(c["bands"]), c["prefix"]))
+    if prefix:
+        cands = [c for c in cands if c["prefix"] == prefix.rstrip("_")]
+        if not cands:
+            raise RuntimeError(f"{prefix}: not found or fewer than 3 filters in programme {program}")
+    tried = []
+    for cand in cands:
+        ok, reason, sel = check_products(cand, max_gb, instrument)
+        tried.append((cand["prefix"], cand["target"], reason))
+        if verbose:
+            print(f"  {cand['prefix']:<22} {cand['target'][:28]:<28} {sorted(cand['bands'])} -> {reason}")
+        if ok:
+            return cand, {"program": program, "tried": tried}
+    raise RuntimeError(f"programme {program}: no observation passed the checks (see list above)")
+
+
 def main():
     ap = argparse.ArgumentParser(description="Explorer mode: random suitable JWST NIRCam dataset.")
     ap.add_argument("--seed", type=int, default=None)
     ap.add_argument("--max-gb", type=float, default=3.0)
     ap.add_argument("--no-run", action="store_true")
+    ap.add_argument("--program", type=int, default=None, help="use this programme instead of a random window")
+    ap.add_argument("--obs", default=None, help="observation prefix within --program, e.g. jw12591-o002_t001")
     args = ap.parse_args()
-    cand, info = find_candidate(args.seed, args.max_gb)
-    cfg_path, name = write_config(cand, Path("configs") / "explore" / f"{cand['prefix']}.toml")
+    if args.program:
+        cand, info = find_in_program(args.program, args.obs, args.max_gb)
+    else:
+        cand, info = find_candidate(args.seed, args.max_gb)
+    cfg_path, name = write_config(cand, Path("configs") / "explore" / f"{cand['prefix']}.toml", args.max_gb)
     print(f"\nchosen: {cand['target']} ({cand['prefix']}), bands {sorted(cand['bands'])}\nconfig: {cfg_path}")
     if not args.no_run:
         from .run import run
