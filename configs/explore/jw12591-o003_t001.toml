@@ -43,7 +43,7 @@ margin = 100
 aspect = 1.0
 
 [caption]
-title = "Star-Forming-Pillar – JWST NIRCam"
-description = "JWST NIRCam imaging, programme 12591 ('MIRI and NIRCam imaging of star forming pillar')."
+title = "Star-forming pillar in the Carina Nebula – JWST NIRCam"
+description = "Star-forming pillar in the South Pillars region of the Carina Nebula (NGC 3372), about 7,500 light-years away (assignment from the coordinates and the pillar pointing towards Eta Carinae, not an official designation). JWST NIRCam imaging, programme 12591 ('MIRI and NIRCam imaging of star forming pillar')."
 filter_source = ""
 credits = "Data: NASA, ESA, CSA, STScI (programme 12591), retrieved via MAST. Processing: Tritium13 (automatic explorer run, default parameters)."

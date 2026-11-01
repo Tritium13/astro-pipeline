@@ -135,6 +135,9 @@ Ziel: beliebige passende JWST-Bilddaten mit derselben Pipeline per Skript verarb
 - [x] NGC 5643 (Programm 1685): zwei Beobachtungen (o011 + o012, 15 Tage Abstand, Module vertauscht) kombiniert → Lückenkreuz bis auf einen schmalen Keil rechts vom Kern gefüllt; Ausschnitt von Hand 2100 px ≈ 2,2′ um den Kern (`configs/ngc5643.toml`)
 - [ ] NGC 5643: schwarzer Keil und kleine Rechtecke am Kern – so lassen (ehrlich) oder Ausschnitt anpassen? Ergebnis/Bildunterschrift prüfen
 - [x] Explorer `--program`/`--obs` (bestimmtes Programm statt Zufall), `--max-gb` wird in die Konfiguration übernommen; erster Test: Säule in Programm 12591 (o003, 6 Filter, 6,28 GB, freigegeben 29.10.2026) – mit Standardwerten gelungen, nur Ausschnitt von Hand (Hochformat über die ganze Säule)
+- [x] NGC 602 (Programm 7035, o006, 16 GB) per Explorer; Ressourcen mit `scripts/monitor_run.sh` gemessen: max. 3,4 GB Prozess, ≥ 59 % Systemspeicher frei → Größe unkritisch; Ausschnitt wieder von Hand
+- [ ] Bildunterschrift Skript: nennt „row destriping“ auch, wenn `auto` keine Korrektur gewählt hat; Credits „default parameters“ trotz Ausschnitt von Hand → präzisieren
+- [ ] Vor dem Löschen alter Rohdaten: `CAL_VER`/`CRDS_CTX` pro Datei in `params/*_run.json` festhalten (MAST prozessiert nach)
 - [ ] Automatischer Ausschnitt: bei schmalen, hohen Feldern Hochformat bzw. Seitenverhältnis des Feldes anbieten; Helligkeitsschwerpunkt verfehlt das Motiv (Säule 12591, wie NGC 5643)
 - Vorab-Filter: nur Bildgebung, ≥ 3 Filter, öffentlich, Stufe 3, überlappende Bildfelder, Größengrenze (RAM 16 GB)
 - Erkenntnisse aus NGC 6720: Box-Suche soll Boxen mit negativem Score automatisch verwerfen (Detektor-Artefakte); wenn das Objekt das Feld füllt, gibt es keinen leeren Himmel → Hintergrund relativ, Streifenkorrektur mit lokalem Modell; Detektor-Blöcke (2D-Helligkeitsstufen) wären der nächste Schritt; Notebooks vor dem Ergebnis immer per „Restart & Run All“ prüfen (Zustandsfehler bei `boxes`)

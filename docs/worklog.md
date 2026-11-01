@@ -300,3 +300,10 @@ python -m astropipe.explore --no-run     # nur suchen + Konfiguration schreiben
 - Lauf `python -m astropipe.run configs/explore/jw12591-o003_t001.toml`: 967 s inkl. Download; Raster 5691 × 2399 px (0,063″); Feldtyp „ausgedehntes Objekt“, Streifen ≤ 0,07 → keine Korrektur; Sternversatz 0,09–0,23 px; RAM reichte (16 GB).
 - Automatischer Ausschnitt (Helligkeitsschwerpunkt, 1610² px) schnitt den Säulenkopf mit dem jungen Stern ab → von Hand Hochformat `center = [2810, 1290]`, `size_px = [3400, 1900]` (2,0′ × 3,6′); zweiter Lauf 133 s (Cache).
 - Standardparameter ohne weitere Anpassung; Farbe A_chromatic.
+
+## 01.11.2026 (Nachmittag) – NGC 602 (Programm 7035) und Ressourcen-Messung
+
+- Säule 12591: Bildunterschrift/README auf „South Pillars region of the Carina Nebula“ (Zuordnung aus Koordinaten RA 10h46m00s, Dec −60°06,6′ und Ausrichtung der Säule auf Eta Carinae; keine offizielle Bezeichnung gefunden; Treasure Chest liegt ≈ 9′ nördlich). Quellen: Smith 2008 (arXiv:0809.5081), ESA/Webb potm2607a.
+- `python -m astropipe.explore --program 7035 --max-gb 17` → `jw07035-o006_t001` (NGC 602), F140M/F162M/F182M/F277W/F360M/F444W, 16,06 GB (SW je 4,8 GB, LW je 0,57 GB). Raster 3590 × 6063 px, Laufzeit 2662 s (≈ 35 min Download). Streifen lokal ≤ 0,09 → keine Korrektur; Sternversatz 0,04–0,11 px.
+- Neu: `scripts/monitor_run.sh` (RSS, CPU, freier Systemspeicher, Swap alle 10 s; `LC_ALL=C` wegen Dezimalkomma). Ergebnis: Prozess max. 3,4 GB, systemweit nie unter 59 % frei, Swap unverändert → 16 GB RAM für diese Größe unkritisch; Engpass ist der Download. (RSS erfasst von der Platte gelesene FITS-Teile evtl. nur teilweise.)
+- Automatischer Ausschnitt schnitt den Haufen am linken Rand ab → von Hand Querformat `center = [1950, 2000]`, `size_px = [1800, 2800]` (2,9′ × 1,9′).

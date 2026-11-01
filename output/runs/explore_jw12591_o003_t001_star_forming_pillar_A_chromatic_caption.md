@@ -1,6 +1,6 @@
-# Star-Forming-Pillar – JWST NIRCam
+# Star-forming pillar in the Carina Nebula – JWST NIRCam
 
-JWST NIRCam imaging, programme 12591 ('MIRI and NIRCam imaging of star forming pillar'). Field of view ≈ 2.0 × 3.6 arcmin, north up, east left.
+Star-forming pillar in the South Pillars region of the Carina Nebula (NGC 3372), about 7,500 light-years away (assignment from the coordinates and the pillar pointing towards Eta Carinae, not an official designation). JWST NIRCam imaging, programme 12591 ('MIRI and NIRCam imaging of star forming pillar'). Field of view ≈ 2.0 × 3.6 arcmin, north up, east left.
 
 ## Colour assignment (A_chromatic: hues by wavelength, 240° to 0°)
 

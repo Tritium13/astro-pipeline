@@ -12,7 +12,7 @@ recomputed from the data and the parameter files alone.
 
 <p align="center">
   <img src="output/runs/explore_jw12591_o003_t001_star_forming_pillar_A_chromatic_web.jpg" alt="Star-forming pillar, JWST NIRCam (programme 12591)" width="420"><br>
-  <em>Star-forming pillar (programme 12591, data released October 2026) – made by the script with default
+  <em>Star-forming pillar in the South Pillars region of the Carina Nebula (programme 12591, data released October 2026) – made by the script with default
   parameters (<code>python -m astropipe.explore --program 12591</code>); the only manual step was the
   portrait crop. NIRCam, 6 filters, colours in wavelength order.</em>
 </p>
