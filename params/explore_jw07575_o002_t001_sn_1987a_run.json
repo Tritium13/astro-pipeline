@@ -406,23 +406,23 @@
     }
   },
   "export": {
-    "center_mode": "max",
+    "center_mode": "manual",
     "center_yx": [
-      539,
-      585
+      1600,
+      1643
     ],
     "half_hw": [
-      401,
-      397
+      460,
+      470
     ],
     "size_arcmin": [
-      0.8337,
-      0.8421000000000001
+      0.987,
+      0.966
     ],
     "brightness_center_yx": null,
     "north_up": true,
     "east_left": true,
-    "north_angle_deg": -13.98,
+    "north_angle_deg": -14.01,
     "files": {
       "A_chromatic": [
         "output/full_res/explore_jw07575_o002_t001_sn_1987a_A_chromatic_16bit.tif",
@@ -437,5 +437,5 @@
       ]
     }
   },
-  "runtime_s": 537.9
+  "runtime_s": 60.7
 }

@@ -44,25 +44,31 @@ def _bands_in_name(name):
 def fetch(cfg, root):
     d = cfg["data"]
     raw = root / "data" / d["raw_dir"]
-    obs, prods = mast.find_i2d(d["program"], d["instrument"])
     obs_list = d.get("obs") or []
     obs_list = [obs_list] if isinstance(obs_list, str) else list(obs_list)
-    keep = []
-    for i, row in enumerate(prods):
-        name = row["productFilename"]
-        if obs_list and not any(o in name for o in obs_list):
-            continue
-        if not set(_bands_in_name(name)) & set(d["bands"]):
-            continue
-        keep.append(i)
-    sel = prods[keep]
-    log(f"MAST: {len(prods)} i2d products, {len(sel)} selected ({mast.total_size_gb(sel):.2f} GB)")
-    mast.download(sel, raw, max_gb=d.get("max_gb", 5.0))
+
+    def wanted(name):
+        return ((not obs_list or any(o in name for o in obs_list))
+                and bool(set(_bands_in_name(name)) & set(d["bands"])))
+
+    # All files already here? Then skip the MAST query (it can be slow or hang).
+    local = sorted(f.name for f in raw.glob("*_i2d.fits") if wanted(f.name)) if raw.exists() else []
+    have = {(b, o) for n in local for b in _bands_in_name(n) for o in (obs_list or [None])
+            if o is None or o in n}
+    if local and all((b, o) in have for b in d["bands"] for o in (obs_list or [None])):
+        names = local
+        log(f"all {len(local)} i2d files present locally – MAST query skipped")
+    else:
+        obs, prods = mast.find_i2d(d["program"], d["instrument"])
+        sel = prods[[i for i, row in enumerate(prods) if wanted(row["productFilename"])]]
+        log(f"MAST: {len(prods)} i2d products, {len(sel)} selected ({mast.total_size_gb(sel):.2f} GB)")
+        mast.download(sel, raw, max_gb=d.get("max_gb", 5.0))
+        names = list(sel["productFilename"])
     # One entry per (band, observation). With a single observation the key is the
     # band itself (as before); with several it is "<band>_<oNNN>" and the
     # observations are combined after reprojection (see `register`).
     files, unit_band = {}, {}
-    for name in sorted(sel["productFilename"]):
+    for name in sorted(names):
         f = raw / name
         b = bands_mod.band_from_header(fits.getheader(f, 0))
         if b not in d["bands"]:
