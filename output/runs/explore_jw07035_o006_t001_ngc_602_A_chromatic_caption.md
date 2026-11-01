@@ -1,6 +1,6 @@
-# NGC-602 – JWST NIRCam
+# NGC 602 – young star cluster in the Small Magellanic Cloud – JWST NIRCam
 
-JWST NIRCam imaging, programme 7035 ('Brown Dwarfs in NGC 602 in the SMC - An opportunity to characterize a substellar IMF at low metallicity'). Field of view ≈ 2.9 × 1.9 arcmin, north up, east left.
+Young star cluster NGC 602 with its surrounding ring of gas and dust, on the outskirts of the Small Magellanic Cloud (a satellite galaxy of the Milky Way), roughly 200,000 light-years away. Most of the small orange ellipses are background galaxies far behind the cluster. JWST NIRCam imaging, programme 7035 ('Brown Dwarfs in NGC 602 in the SMC - An opportunity to characterize a substellar IMF at low metallicity'). Field of view ≈ 2.9 × 1.9 arcmin, north up, east left.
 
 ## Colour assignment (A_chromatic: hues by wavelength, 240° to 0°)
 

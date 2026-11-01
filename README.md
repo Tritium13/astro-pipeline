@@ -22,10 +22,10 @@ recomputed from the data and the parameter files alone.
 | ![NGC 3132](output/runs/ngc3132_C_physical_web.jpg) | ![NGC 6720](output/runs/ngc6720_C_physical_web.jpg) | ![NGC 6720 NIRCam + MIRI](output/ngc6720_nircam_miri_W2_ionisation_web.jpg) |
 | NIRCam, 6 filters, colours grouped by physical origin | NIRCam, 4 filters, destriped | NIRCam + MIRI, ionisation layers |
 
-| NGC 5643 – two observations combined |
-|---|
-| ![NGC 5643](output/runs/ngc5643_A_chromatic_web.jpg) |
-| NIRCam, 3 filters; the black wedge is sky not covered by either observation |
+| NGC 602 – young star cluster in the Small Magellanic Cloud | NGC 5643 – two observations combined |
+|---|---|
+| ![NGC 602](output/runs/explore_jw07035_o006_t001_ngc_602_A_chromatic_web.jpg) | ![NGC 5643](output/runs/ngc5643_A_chromatic_web.jpg) |
+| Cluster and its ring of gas and dust, ~200,000 light-years away; most small orange ellipses are background galaxies. NIRCam, 6 filters, 16 GB of data, made by the script (crop set by hand) | NIRCam, 3 filters; the black wedge is sky not covered by either observation |
 
 Each image has a caption file next to it (`*_caption.md`) with the filter → colour table,
 the processing steps and the credits.

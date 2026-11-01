@@ -43,7 +43,7 @@ margin = 100
 aspect = 1.0
 
 [caption]
-title = "NGC-602 – JWST NIRCam"
-description = "JWST NIRCam imaging, programme 7035 ('Brown Dwarfs in NGC 602 in the SMC - An opportunity to characterize a substellar IMF at low metallicity')."
+title = "NGC 602 – young star cluster in the Small Magellanic Cloud – JWST NIRCam"
+description = "Young star cluster NGC 602 with its surrounding ring of gas and dust, on the outskirts of the Small Magellanic Cloud (a satellite galaxy of the Milky Way), roughly 200,000 light-years away. Most of the small orange ellipses are background galaxies far behind the cluster. JWST NIRCam imaging, programme 7035 ('Brown Dwarfs in NGC 602 in the SMC - An opportunity to characterize a substellar IMF at low metallicity')."
 filter_source = ""
 credits = "Data: NASA, ESA, CSA, STScI (programme 7035), retrieved via MAST. Processing: Tritium13 (automatic explorer run, default parameters)."
