@@ -110,6 +110,7 @@ method = "auto"          # measures sky fraction + stripe strength per filter an
 
 [grid]
 resolution_arcsec = 0.063
+orientation = "field"    # rotate the grid so the observed field lies straight (north angle in the caption); "north" = north up
 
 [background]
 box = 150
@@ -129,16 +130,15 @@ label = "hues by wavelength, 240° to 0°"
 
 [export]
 variants = ["A_chromatic"]
-center = "auto"          # brightness centre, falls back to the most interior point
+center = "max"           # largest rectangle in the observed area; "content" = chosen by image content; or [y, x] + size_px by hand
 center_band = "{b[-1]}"
 margin = 100
-aspect = 1.0
 
 [caption]
 title = "{title} – JWST NIRCam"
 description = "{desc}"
 filter_source = ""
-credits = "Data: NASA, ESA, CSA, STScI (programme {cand['program']}), retrieved via MAST. Processing: Tritium13 (automatic explorer run, default parameters)."
+credits = "Data: NASA, ESA, CSA, STScI (programme {cand['program']}), retrieved via MAST. Processing: Tritium13 (explorer run; settings in the configuration)."
 '''
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -256,6 +256,7 @@ def main():
     ap.add_argument("--seed", type=int, default=None)
     ap.add_argument("--max-gb", type=float, default=3.0)
     ap.add_argument("--no-run", action="store_true")
+    ap.add_argument("--no-open", action="store_true", help="do not open the finished image")
     ap.add_argument("--program", type=int, default=None, help="use this programme instead of a random window")
     ap.add_argument("--obs", default=None, help="observation prefix within --program, e.g. jw12591-o002_t001")
     args = ap.parse_args()
@@ -269,6 +270,9 @@ def main():
         from .run import run
         result = run(cfg_path, Path("."))
         print(write_report(cand, result, Path("output") / "runs" / f"{cand['prefix']}_report.md"))
+        if not args.no_open:
+            from .run import open_result
+            open_result(result)
 
 
 if __name__ == "__main__":

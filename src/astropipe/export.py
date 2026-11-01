@@ -61,6 +61,116 @@ def largest_rect(inner, center, aspect=1.0, min_half=50):
     return lo, int(round(aspect * lo))
 
 
+CONTENT_ASPECTS = (2 / 5, 1 / 2, 9 / 16, 3 / 4, 1.0, 4 / 3, 16 / 9, 2.0, 5 / 2)
+
+
+def _block(a, f, func):
+    """Reduce a 2-D array in f x f blocks (edges trimmed)."""
+    h, w = (a.shape[0] // f) * f, (a.shape[1] // f) * f
+    return func(a[:h, :w].reshape(h // f, f, w // f, f), axis=(1, 3))
+
+
+def content_crop(inner, layers, aspects=CONTENT_ASPECTS, sizes=None, max_px=600, box=5, ring=3, beta=1.0):
+    """Choose crop centre, size and aspect ratio from the image content.
+
+    Works on a downsampled copy (longest side ~max_px blocks; block *median*, so single stars
+    and diffraction spikes count little). 'Content' = local contrast (standard deviation in
+    box x box blocks: filaments, pillar edges, clusters) + brightness above the typical sky
+    (extended objects such as galaxies), both normalised to their mean. For every aspect
+    ratio the largest crop that fits completely inside `inner` is found; then sizes from
+    30 to 100 % of it are tried at
+    every position. Score = contrast inside the crop minus `beta` x (contrast in the outer
+    band of `ring` blocks, scaled to the crop area): rich inside, calm along the border, so
+    the crop tends not to cut through the motif. Returns ((cy, cx), (half_h, half_w), aspect).
+    """
+    from scipy.ndimage import uniform_filter
+    sizes = np.arange(0.3, 1.001, 0.05) if sizes is None else sizes
+    f = max(1, int(np.ceil(max(inner.shape) / max_px)))
+    ok = _block(inner, f, np.all)
+    def bmedian(b, axis):
+        return np.median(b.transpose(0, 2, 1, 3).reshape(b.shape[0], b.shape[2], -1), axis=-1)
+
+    lum = np.mean([_block(np.nan_to_num(np.asarray(x, dtype=np.float32)), f, bmedian) for x in layers], axis=0)
+    m, m2 = uniform_filter(lum, box), uniform_filter(lum * lum, box)
+    contrast = np.sqrt(np.clip(m2 - m * m, 0, None))
+    excess = np.clip(lum - np.median(lum[ok]), 0, None) if ok.any() else np.zeros_like(lum)
+    sal = contrast / (contrast[ok].mean() + 1e-12) + excess / (excess[ok].mean() + 1e-12)
+    sal[~ok] = 0
+    bad = np.pad((~ok).astype(np.int64).cumsum(0).cumsum(1), ((1, 0), (1, 0)))
+    S = np.pad(sal.astype(np.float64).cumsum(0).cumsum(1), ((1, 0), (1, 0)))
+
+    def win(I, h, w):                       # sums over all h x w windows (integral image)
+        return I[h:, w:] - I[:-h, w:] - I[h:, :-w] + I[:-h, :-w]
+
+    H, W = ok.shape
+    best = (-np.inf,)
+    for asp in aspects:
+        def fits(h):
+            w = int(round(asp * h))
+            return 1 <= w <= W and h <= H and bool((win(bad, h, w) == 0).any())
+        lo, hi = 0, H
+        while lo < hi:
+            mid = (lo + hi + 1) // 2
+            lo, hi = (mid, hi) if fits(mid) else (lo, mid - 1)
+        for sz in sizes:
+            h = int(sz * lo)
+            w = int(round(asp * h))
+            if h < 4 * ring or w < 4 * ring:
+                continue
+            inside = win(S, h, w)
+            core = win(S, h - 2 * ring, w - 2 * ring)[ring:ring + inside.shape[0], ring:ring + inside.shape[1]]
+            n_in, n_edge = h * w, h * w - (h - 2 * ring) * (w - 2 * ring)
+            score = np.where(win(bad, h, w) == 0, inside - beta * (inside - core) * n_in / n_edge, -np.inf)
+            k = int(np.argmax(score))
+            if score.flat[k] > best[0]:
+                y0, x0 = np.unravel_index(k, score.shape)
+                best = (score.flat[k], asp, h, w, y0, x0)
+    if best[0] == -np.inf:
+        raise ValueError("no crop fits inside the valid area")
+    _, asp, h, w, y0, x0 = best
+    return (int((y0 + h / 2) * f), int((x0 + w / 2) * f)), (h * f // 2, w * f // 2), float(asp)
+
+
+def north_angle(wcs, cy, cx):
+    """Direction of north in the image at pixel (cy, cx): degrees from 'up', counter-clockwise positive."""
+    import astropy.units as u
+    from astropy.coordinates import SkyCoord
+    c0 = wcs.pixel_to_world(cx, cy)
+    n = SkyCoord(c0.ra, c0.dec + 2 * u.arcsec, frame=c0.frame)
+    x1, y1 = wcs.world_to_pixel(n)
+    return float(np.degrees(np.arctan2(-(x1 - cx), y1 - cy)))
+
+
+def max_rect(inner, max_px=1200):
+    """Largest axis-parallel rectangle completely inside `inner` (any aspect ratio).
+
+    Row-by-row histogram + stack method on a block-downsampled mask (block = all valid).
+    Returns ((cy, cx), (half_h, half_w)).
+    """
+    f = max(1, int(np.ceil(max(inner.shape) / max_px)))
+    ok = _block(inner, f, np.all)
+    H, W = ok.shape
+    heights = np.zeros(W, dtype=np.int64)
+    best = (0, 0, 0, 0, 0)                     # area, last row, left column, height, width
+    for r in range(H):
+        heights = np.where(ok[r], heights + 1, 0)
+        stack = []
+        for c in range(W + 1):
+            hc = int(heights[c]) if c < W else 0
+            start = c
+            while stack and stack[-1][1] >= hc:
+                s0, hs = stack.pop()
+                if hs * (c - s0) > best[0]:
+                    best = (hs * (c - s0), r, s0, hs, c - s0)
+                start = s0
+            stack.append((start, hc))
+    if best[0] == 0:
+        raise ValueError("no rectangle fits inside the valid area")
+    _, r, s0, h, w = best
+    y0 = r - h + 1
+    return (int((y0 + h / 2) * f), int((s0 + w / 2) * f)), (h * f // 2, w * f // 2)
+
+
 def orientation(wcs, cy, cx, step=100):
     """(north_up, east_left) at pixel (cy, cx), checked with the WCS."""
     c0 = wcs.pixel_to_world(cx, cy)

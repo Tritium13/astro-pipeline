@@ -1,0 +1,256 @@
+{
+  "config": "configs/explore/jw01727-o069_t123.toml",
+  "astropipe": "0.1.0",
+  "files": {
+    "F115W": "jw01727-o069_t123_nircam_clear-f115w_i2d.fits",
+    "F150W": "jw01727-o069_t123_nircam_clear-f150w_i2d.fits",
+    "F277W": "jw01727-o069_t123_nircam_clear-f277w_i2d.fits",
+    "F444W": "jw01727-o069_t123_nircam_clear-f444w_i2d.fits"
+  },
+  "clean": {
+    "method": "auto",
+    "auto": {
+      "empty_field": true,
+      "measured": {
+        "F115W": {
+          "sky_fraction": 0.482,
+          "structure": 1.37,
+          "stripes_sky": {
+            "rows": 0.371,
+            "columns": 0.435
+          },
+          "stripes_local": {
+            "rows": 0.199,
+            "columns": 0.117
+          },
+          "stripes_rows": 0.371,
+          "stripes_columns": 0.435
+        },
+        "F150W": {
+          "sky_fraction": 0.419,
+          "structure": 1.17,
+          "stripes_sky": {
+            "rows": 0.369,
+            "columns": 0.373
+          },
+          "stripes_local": {
+            "rows": 0.199,
+            "columns": 0.118
+          },
+          "stripes_rows": 0.369,
+          "stripes_columns": 0.373
+        },
+        "F277W": {
+          "sky_fraction": 0.35,
+          "structure": 0.75,
+          "stripes_sky": {
+            "rows": 0.272,
+            "columns": 0.254
+          },
+          "stripes_local": {
+            "rows": 0.177,
+            "columns": 0.163
+          },
+          "stripes_rows": 0.272,
+          "stripes_columns": 0.254
+        },
+        "F444W": {
+          "sky_fraction": 0.384,
+          "structure": 0.88,
+          "stripes_sky": {
+            "rows": 0.238,
+            "columns": 0.278
+          },
+          "stripes_local": {
+            "rows": 0.147,
+            "columns": 0.14
+          },
+          "stripes_rows": 0.238,
+          "stripes_columns": 0.278
+        }
+      },
+      "chosen": {
+        "F115W": {
+          "method": "sky",
+          "axis": "columns",
+          "smooth": 0,
+          "background2d_cell": 128
+        },
+        "F150W": {
+          "method": "sky",
+          "axis": "columns",
+          "smooth": 0,
+          "background2d_cell": 128
+        },
+        "F277W": {
+          "method": "sky",
+          "axis": "rows",
+          "smooth": 0,
+          "background2d_cell": 128
+        },
+        "F444W": {
+          "method": "sky",
+          "axis": "columns",
+          "smooth": 0,
+          "background2d_cell": 128
+        }
+      }
+    }
+  },
+  "moving_target": null,
+  "star_offsets_px": {
+    "F115W": 0.14108062913599395,
+    "F150W": 0.07546792398782029,
+    "F277W": 0.14800894573344736,
+    "F444W": 0.0
+  },
+  "grid_shape": [
+    5723,
+    2268
+  ],
+  "stretch": {
+    "saturated_holes_filled_px": {
+      "F115W": {
+        "saturated_px": 40,
+        "bad_px": 1856
+      },
+      "F150W": {
+        "saturated_px": 46,
+        "bad_px": 1819
+      },
+      "F277W": {
+        "saturated_px": 60,
+        "bad_px": 1842
+      },
+      "F444W": {
+        "saturated_px": 0,
+        "bad_px": 1874
+      }
+    },
+    "sky_boxes": {
+      "size_px": 150,
+      "yx": [
+        [
+          1950,
+          300
+        ],
+        [
+          1875,
+          1125
+        ],
+        [
+          4125,
+          375
+        ],
+        [
+          1125,
+          300
+        ],
+        [
+          1350,
+          900
+        ],
+        [
+          4725,
+          375
+        ]
+      ],
+      "scores": [
+        0.7421649694442749,
+        0.7433574199676514,
+        0.7433656454086304,
+        0.743378221988678,
+        0.7436865568161011,
+        0.7437015771865845
+      ]
+    },
+    "per_band": {
+      "F115W": {
+        "black_k": 0.5,
+        "white_pct": 99.9,
+        "a": 0.05,
+        "bkg": 0.264052152633667,
+        "noise": 0.009254254400730133,
+        "spread": 0.001255035400390625,
+        "black": -0.0046271272003650665,
+        "white": 0.9385473728179932
+      },
+      "F150W": {
+        "black_k": 0.5,
+        "white_pct": 99.9,
+        "a": 0.05,
+        "bkg": 0.25609713792800903,
+        "noise": 0.00705608818680048,
+        "spread": 0.0008203983306884766,
+        "black": -0.00352804409340024,
+        "white": 1.1719790697097778
+      },
+      "F277W": {
+        "black_k": 0.5,
+        "white_pct": 99.9,
+        "a": 0.05,
+        "bkg": 0.12552569806575775,
+        "noise": 0.003059595823287964,
+        "spread": 0.0008049905300140381,
+        "black": -0.001529797911643982,
+        "white": 1.1540900468826294
+      },
+      "F444W": {
+        "black_k": 0.5,
+        "white_pct": 99.9,
+        "a": 0.05,
+        "bkg": 0.27407214045524597,
+        "noise": 0.0035300003364682198,
+        "spread": 0.0004788637161254883,
+        "black": -0.0017650001682341099,
+        "white": 0.8399109840393066
+      }
+    }
+  },
+  "colour": {
+    "A_chromatic": {
+      "hue_deg": {
+        "F115W": 240.0,
+        "F150W": 160.0,
+        "F277W": 80.0,
+        "F444W": 0.0
+      },
+      "saturation": {},
+      "weights": {},
+      "luminance": null
+    }
+  },
+  "export": {
+    "center_mode": "max",
+    "center_yx": [
+      2835,
+      1140
+    ],
+    "half_hw": [
+      2690,
+      955
+    ],
+    "size_arcmin": [
+      2.0055,
+      5.649
+    ],
+    "brightness_center_yx": null,
+    "north_up": true,
+    "east_left": true,
+    "north_angle_deg": -23.67,
+    "files": {
+      "A_chromatic": [
+        "output/full_res/explore_jw01727_o069_t123_cwebtile_2_15_A_chromatic_16bit.tif",
+        "output/full_res/explore_jw01727_o069_t123_cwebtile_2_15_A_chromatic_full.png",
+        "output/runs/explore_jw01727_o069_t123_cwebtile_2_15_A_chromatic_web.jpg",
+        "output/runs/explore_jw01727_o069_t123_cwebtile_2_15_A_chromatic_caption.md",
+        "output/runs/explore_jw01727_o069_t123_cwebtile_2_15_A_chromatic_overview.jpg",
+        "output/full_res/explore_jw01727_o069_t123_cwebtile_2_15_A_chromatic_field_16bit.tif",
+        "output/full_res/explore_jw01727_o069_t123_cwebtile_2_15_A_chromatic_field_full.png",
+        "output/runs/explore_jw01727_o069_t123_cwebtile_2_15_A_chromatic_field_web.jpg",
+        "output/runs/explore_jw01727_o069_t123_cwebtile_2_15_A_chromatic_field_caption.md"
+      ]
+    }
+  },
+  "runtime_s": 281.3
+}

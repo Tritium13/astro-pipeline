@@ -14,17 +14,79 @@ from reproject.mosaicking import find_optimal_celestial_wcs
 warnings.simplefilter("ignore", FITSFixedWarning)
 
 
-def target_grid(files, resolution_arcsec=0.063):
-    """North-up TAN grid covering all input images at the given pixel scale.
+def target_grid(files, resolution_arcsec=0.063, orientation="north"):
+    """TAN grid covering all input images at the given pixel scale.
 
-    files: iterable of i2d paths. Only headers are read.
+    orientation = "north": north up, east left (only headers are read).
+    orientation = "field": the grid is rotated so that the observed field lies straight
+    (minimum-area bounding rectangle of the valid data, rotation chosen within ±45° of
+    north-up). A rectangular crop then covers far more of a tilted field; north is no
+    longer up – the angle is reported in the caption. Reads a subsampled copy of each SCI.
     Returns (wcs_out, shape_out).
     """
+    files = list(files)
     inputs = []
     for f in files:
         hdr = fits.getheader(f, extname="SCI")
         inputs.append(((hdr["NAXIS2"], hdr["NAXIS1"]), WCS(hdr)))
-    return find_optimal_celestial_wcs(inputs, resolution=resolution_arcsec * u.arcsec)
+    wcs_n, shape_n = find_optimal_celestial_wcs(inputs, resolution=resolution_arcsec * u.arcsec)
+    if orientation == "north":
+        return wcs_n, shape_n
+    if orientation != "field":
+        raise ValueError(f"grid orientation must be 'north' or 'field', not {orientation!r}")
+    pts = []
+    for f in files:                                  # valid data points of every input, in north-up pixels
+        with fits.open(f, memmap=True) as hdul:
+            sci, w_in = hdul["SCI"].data, WCS(hdul["SCI"].header)
+            step = max(1, max(sci.shape) // 400)
+            sub = np.asarray(sci[::step, ::step])
+            yy, xx = np.nonzero(np.isfinite(sub) & (sub != 0))
+            px, py = wcs_n.world_to_pixel(w_in.pixel_to_world(xx * step, yy * step))
+            pts.append(np.c_[px, py])
+    pts = np.vstack(pts)
+    a = field_angle(pts)
+    w = wcs_n.deepcopy()
+    rot = np.array([[np.cos(a), -np.sin(a)], [np.sin(a), np.cos(a)]])
+    w.wcs.pc = w.wcs.get_pc() @ rot                  # pixel axes along the field edges
+    nx, ny = w.world_to_pixel(wcs_n.pixel_to_world(pts[:, 0], pts[:, 1]))
+    pad = 2 * step
+    x0, y0 = nx.min() - pad, ny.min() - pad
+    w.wcs.crpix = w.wcs.crpix - np.array([x0, y0])
+    shape = (int(np.ceil(ny.max() - y0 + pad)) + 1, int(np.ceil(nx.max() - x0 + pad)) + 1)
+    return w, shape
+
+
+def field_angle(pts):
+    """Angle (rad, within ±45°) of the minimum-area bounding rectangle of 2-D points (x, y)."""
+    from scipy.spatial import ConvexHull
+    hull = pts[ConvexHull(pts).vertices]
+    best = (np.inf, 0.0)
+    for i in range(len(hull)):
+        d = hull[(i + 1) % len(hull)] - hull[i]
+        a = np.arctan2(d[1], d[0])
+        c, s = np.cos(a), np.sin(a)
+        r = pts @ np.array([[c, -s], [s, c]])        # rotate by -a: this hull edge becomes horizontal
+        area = np.ptp(r[:, 0]) * np.ptp(r[:, 1])
+        if area < best[0]:
+            best = (area, a)
+    return float((best[1] + np.pi / 4) % (np.pi / 2) - np.pi / 4)
+
+
+def same_grid(hdr, wcs, shape, key):
+    """Was a cached reprojection (header `hdr`) made on this grid? Older files have no GRIDKEY:
+    then compare shape, reference point and rotation numerically."""
+    if "GRIDKEY" in hdr:
+        return hdr["GRIDKEY"] == key
+    w0 = WCS(hdr)
+    return ((hdr.get("NAXIS2"), hdr.get("NAXIS1")) == tuple(shape)
+            and np.allclose(w0.wcs.crval, wcs.wcs.crval) and np.allclose(w0.wcs.crpix, wcs.wcs.crpix)
+            and np.allclose(w0.pixel_scale_matrix, wcs.pixel_scale_matrix))
+
+
+def grid_key(wcs, shape):
+    """Short fingerprint of a target grid (to tell cached reprojections apart)."""
+    import hashlib
+    return hashlib.md5((wcs.to_header_string() + str(tuple(shape))).encode()).hexdigest()[:12]
 
 
 def pixel_scale_arcsec(wcs):
@@ -56,18 +118,22 @@ def reproject_all(files_by_band, wcs_out, shape_out, out_dir, prefix, overwrite=
     for band, path in files_by_band.items():
         out_path = out_dir / f"{prefix}_{band.lower()}_reproj.fits"
         out[band] = out_path
+        key = grid_key(wcs_out, shape_out)
         if out_path.exists() and not overwrite:
-            src = fits.getheader(out_path).get("SRCFILE")
-            if src == Path(path).name and out_path.stat().st_mtime >= Path(path).stat().st_mtime:
+            h0 = fits.getheader(out_path)
+            src = h0.get("SRCFILE")
+            if (src == Path(path).name and out_path.stat().st_mtime >= Path(path).stat().st_mtime
+                    and same_grid(h0, wcs_out, shape_out, key)):
                 print(f"{band:<7} exists -> {out_path.name}")
                 continue
-            print(f"{band:<7} outdated (made from {src}) -> reprojecting")
+            print(f"{band:<7} outdated (other source file or grid) -> reprojecting")
         t0 = time.perf_counter()
         array, footprint, bunit = reproject_file(path, wcs_out, shape_out)
         hdr = wcs_out.to_header()
         hdr["BAND"] = (band, "filter defining the passband")
         hdr["BUNIT"] = bunit
         hdr["SRCFILE"] = Path(path).name
+        hdr["GRIDKEY"] = (key, "fingerprint of the target grid")
         hdr["REPROJ"] = ("reproject_adaptive", "conserve_flux=False")
         fits.HDUList([
             fits.PrimaryHDU(data=array, header=hdr),

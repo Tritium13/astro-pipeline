@@ -307,3 +307,13 @@ python -m astropipe.explore --no-run     # nur suchen + Konfiguration schreiben
 - `python -m astropipe.explore --program 7035 --max-gb 17` → `jw07035-o006_t001` (NGC 602), F140M/F162M/F182M/F277W/F360M/F444W, 16,06 GB (SW je 4,8 GB, LW je 0,57 GB). Raster 3590 × 6063 px, Laufzeit 2662 s (≈ 35 min Download). Streifen lokal ≤ 0,09 → keine Korrektur; Sternversatz 0,04–0,11 px.
 - Neu: `scripts/monitor_run.sh` (RSS, CPU, freier Systemspeicher, Swap alle 10 s; `LC_ALL=C` wegen Dezimalkomma). Ergebnis: Prozess max. 3,4 GB, systemweit nie unter 59 % frei, Swap unverändert → 16 GB RAM für diese Größe unkritisch; Engpass ist der Download. (RSS erfasst von der Platte gelesene FITS-Teile evtl. nur teilweise.)
 - Automatischer Ausschnitt schnitt den Haufen am linken Rand ab → von Hand Querformat `center = [1950, 2000]`, `size_px = [1800, 2800]` (2,9′ × 1,9′).
+
+## 01.11.2026 (später Nachmittag) – Ausschnitt, ganzes Feld, gedrehtes Raster
+
+- `run.py`/`explore.py`: fertiges Bild öffnet sich nach dem Lauf (`--no-open` zum Abschalten); zusätzlich immer das ganze beobachtete Feld (`*_field_web.jpg`, volle Auflösung in `full_res/`; `export.full_field = false` schaltet ab).
+- `export.content_crop` (`center = "content"`): Lage, Größe, Seitenverhältnis nach Bildinhalt (Block-Median, lokaler Kontrast + Helligkeit über dem Himmel, Randstrafe β = 1). Erste Fassung (nur Kontrast, Mittelwert) wählte beim COSMOS-Feld den hellen Stern statt der Balkenspirale → nachgebessert, an Säule, NGC 602 und COSMOS geprüft.
+- Zufallslauf `--seed 11` → COSMOS-Web-Kachel (Programm 1727, jw01727-o069_t123, 4 Filter): tiefes Feld, deutliche Reststreifen trotz `sky` + 2-D-Hintergrund (bekannte Grenze, Etappe 10).
+- Befund: Größtes Rechteck im nach Norden ausgerichteten Raster deckt nur 73 % (Säule), 53 % (NGC 602), 22 % (COSMOS) des Feldes – Ursache ist die Drehung der Aufnahme am Himmel.
+- Neu: `grid.orientation = "field"` (Raster entlang des kleinsten umschließenden Rechtecks der gültigen Daten, Drehung ≤ ±45°) und `export.center = "max"` (größtes Rechteck, `export.max_rect`). Reprojektions-Cache prüft jetzt das Raster (`GRIDKEY`). Bildunterschrift nennt Nordwinkel, Art des Ausschnitts und Streifenkorrektur nur, wenn angewendet.
+- Test COSMOS: Raster 5723 × 2268, Nord 24° im Uhrzeigersinn, Sternversatz ≤ 0,15 px, Ausschnitt 2,0′ × 5,6′ (fast das ganze Feld statt 22 %).
+- Säule und NGC 602 auf `orientation = "field"` + `center = "max"` umgestellt (alte Ausschnitte als Kommentar in der Konfiguration).

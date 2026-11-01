@@ -17,6 +17,7 @@ method = "auto"          # measures sky fraction + stripe strength per filter an
 
 [grid]
 resolution_arcsec = 0.063
+orientation = "field"    # rotate the grid so the observed field lies straight (north angle in the caption); "north" = north up
 
 [background]
 box = 150
@@ -36,8 +37,7 @@ label = "hues by wavelength, 240° to 0°"
 
 [export]
 variants = ["A_chromatic"]
-center = [1950, 2000]    # by hand (01.11.2026): landscape crop with the cluster and the surrounding nebula; auto crop cut the cluster at the left edge
-size_px = [1800, 2800]   # [height, width]
+center = "max"           # largest rectangle in the observed area (01.11.2026; before: hand crop [1950, 2000], size [1800, 2800] on the north-up grid)
 center_band = "F444W"
 margin = 100
 aspect = 1.0

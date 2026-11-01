@@ -80,6 +80,9 @@ Each run also writes an overview of the whole field (`*_overview.jpg`) with the 
 - **Aesthetic choices are labelled as such**, e.g. each filter is normalised to its own
   white point, and MIRI images are upsampled to the NIRCam grid (a version with matched
   sharpness is provided for comparison).
+- **Orientation:** classic configurations are north up, east left. Explorer runs rotate the grid so that the
+  observed field lies straight (a tilted field otherwise loses up to ~80 % to the crop); the caption then states
+  where north points. Every run also exports the whole observed field (`*_field_web.jpg`) next to the crop.
 - **Known limitations:** readout stripes ("1/f noise") are corrected on the combined
   i2d images, which is an approximation – residual stripes remain in some fields; a clean
   correction would act on the single exposures. Detector gaps that no observation covers

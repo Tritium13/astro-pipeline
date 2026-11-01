@@ -231,8 +231,9 @@ def combine_observations(parts):
 
 def register(cfg, files, work, name, unit_band=None):
     g = cfg.get("grid", {})
-    wcs_out, shape_out = registration.target_grid(files.values(), g.get("resolution_arcsec", 0.063))
-    log(f"target grid {shape_out}")
+    wcs_out, shape_out = registration.target_grid(files.values(), g.get("resolution_arcsec", 0.063),
+                                                  g.get("orientation", "north"))
+    log(f"target grid {shape_out} ({g.get('orientation', 'north')})")
     reproj = registration.reproject_all(files, wcs_out, shape_out, work / "reproj", name)
     unit_band = unit_band or {k: k for k in files}
     imgs, combined = {}, {}
@@ -341,7 +342,7 @@ def crop_and_export(cfg, rgbs, stretched, valid, wcs_out, name, root, info, do_e
     e = cfg.get("export", {})
     inner = distance_transform_edt(valid) > e.get("margin", 120)
     aspect = e.get("aspect", 1.0)
-    mode = e.get("center", "auto")          # "nebula" | "interior" | "auto"
+    mode = e.get("center", "auto")          # "content" | "nebula" | "interior" | "auto" | [y, x] | "planet"
     center, used, bright = None, mode, None
     if mode == "planet":                     # centre of the planet's disk (grid.moving_target)
         mode = [round(v) for v in cfg["_disk_centre_yx"]]
@@ -353,6 +354,13 @@ def crop_and_export(cfg, rgbs, stretched, valid, wcs_out, name, root, info, do_e
         else:
             half_h, half_w = export.largest_rect(inner, (cy, cx), aspect=aspect)
         center, used = (cy, cx), ("planet" if e.get("center") == "planet" else "manual")
+    elif mode == "max":                      # largest rectangle inside the valid area (any aspect ratio)
+        center, (half_h, half_w) = export.max_rect(inner)
+        used = "max"
+    elif mode == "content":                  # crop position, size and aspect from the image content
+        center, (half_h, half_w), asp = export.content_crop(inner, list(stretched.values()),
+                                                            beta=e.get("content_beta", 1.0))
+        used = f"content (aspect {asp:.2f})"
     elif mode in ("nebula", "auto"):
         center = export.nebula_center(stretched[e.get("center_band", list(stretched)[-1])], valid)
         bright = [int(v) for v in center]
@@ -371,39 +379,65 @@ def crop_and_export(cfg, rgbs, stretched, valid, wcs_out, name, root, info, do_e
     cy, cx = center
     crop = np.s_[cy - half_h:cy + half_h, cx - half_w:cx + half_w]
     north_up, east_left = export.orientation(wcs_out, cy, cx)
+    nang = export.north_angle(wcs_out, cy, cx)
+    if north_up and east_left and abs(nang) < 0.5:
+        orient = "north up, east left"
+    elif east_left or abs(nang) >= 0.5:
+        orient = (f"rotated to the field: north points {abs(nang):.0f}° "
+                  f"{'counter-clockwise' if nang > 0 else 'clockwise'} from up")
+    else:
+        orient = "ORIENTATION TO BE CHECKED"
     pix = cfg.get("grid", {}).get("resolution_arcsec", 0.063)
     size = (2 * half_w * pix / 60, 2 * half_h * pix / 60)
     rec = {"center_mode": used, "center_yx": [cy, cx], "half_hw": [half_h, half_w], "size_arcmin": size,
-           "brightness_center_yx": bright, "north_up": north_up, "east_left": east_left, "files": {}}
+           "brightness_center_yx": bright, "north_up": north_up, "east_left": east_left,
+           "north_angle_deg": round(nang, 2), "files": {}}
     log(f"crop {2 * half_w} x {2 * half_h} px = {size[0]:.2f}' x {size[1]:.2f}'")
     if do_export:
         for vname in e.get("variants", list(rgbs)):
-            cap = caption(cfg, vname, size, north_up and east_left, info)
+            cap = caption(cfg, vname, size, orient, info, used)
             paths = export.save_outputs(rgbs[vname][crop], cap, f"{name}_{vname}",
                                         root / "output" / "full_res", root / "output" / "runs")
             ov = export.save_overview(rgbs[vname], root / "output" / "runs" / f"{name}_{vname}_overview.jpg",
                                       crop=crop, marker=bright)
             rec["files"][vname] = [str(p) for p in paths] + [str(ov)]
-            log(f"exported {vname} (+ overview)")
+            if e.get("full_field", True):       # additionally the whole observed field (bounding box of valid data)
+                rows, cols = np.nonzero(valid.any(axis=1))[0], np.nonzero(valid.any(axis=0))[0]
+                fcrop = np.s_[rows[0]:rows[-1] + 1, cols[0]:cols[-1] + 1]
+                fsize = ((cols[-1] + 1 - cols[0]) * pix / 60, (rows[-1] + 1 - rows[0]) * pix / 60)
+                fcap = caption(cfg, vname, fsize, orient, info, "full field") + \
+                    "\nFull observed field (not cropped); areas without data are black.\n"
+                fpaths = export.save_outputs(rgbs[vname][fcrop], fcap, f"{name}_{vname}_field",
+                                             root / "output" / "full_res", root / "output" / "runs", web_max=3000)
+                rec["files"][vname] += [str(p) for p in fpaths]
+            log(f"exported {vname} (+ overview" + (", full field)" if e.get("full_field", True) else ")"))
     return rec, crop
 
 
-def caption(cfg, vname, size, ok_orientation, info):
+def caption(cfg, vname, size, orient, info, crop_mode=None):
     c = cfg.get("caption", {})
     v = cfg["color"][vname]
     hues = info["colour"][vname]["hue_deg"]
     rows = "\n".join(f"| {b} | {c.get('colour_names', {}).get(vname, {}).get(b, f'{hues[b]:.0f}°')} | "
                      f"{c.get('filter_content', {}).get(b, '')} |" for b in bands_mod.sort_bands(hues))
     steps = ["calibrated stage-3 images (`_i2d.fits`) from MAST"]
-    if info.get("clean"):
-        steps.append(f"row destriping ({info['clean']['method']} background model; approximate)")
-    steps += [f"common grid {cfg.get('grid', {}).get('resolution_arcsec', 0.063)}″/px (`reproject_adaptive`)",
+    cl = info.get("clean") or {}
+    chosen = (cl.get("auto") or {}).get("chosen")
+    applied = ([m["method"] for m in chosen.values() if m.get("method") != "none"] if chosen
+               else ([cl["method"]] if cl.get("method") not in (None, "none") else []))
+    if applied:
+        steps.append(f"row destriping ({', '.join(sorted(set(applied)))} background model; approximate)")
+    rot = " rotated to the field" if cfg.get("grid", {}).get("orientation") == "field" else ""
+    steps += [f"common grid{rot} {cfg.get('grid', {}).get('resolution_arcsec', 0.063)}″/px (`reproject_adaptive`)",
               "background from sky boxes", "asinh stretch per filter (each normalised to its own white point)",
               "additive colour mixing"]
     if v.get("luminance"):
         steps.append(f"{int(v['luminance'].get('mix', 0.5) * 100)} % of the brightness from {v['luminance']['band']} (LRGB)")
     steps.append("saturated star cores filled with white, isolated bad pixels with the local median; no local adjustments")
-    orient = "north up, east left" if ok_orientation else "ORIENTATION TO BE CHECKED"
+    if crop_mode:
+        steps.append({"manual": "crop set by hand", "full field": "full observed field, not cropped",
+                      "max": "crop = largest rectangle inside the observed area"}.get(
+                          crop_mode, f"crop chosen automatically ({crop_mode})"))
     return f"""# {c.get('title', cfg['run']['name'])}
 
 {c.get('description', '')} Field of view ≈ {size[0]:.1f} × {size[1]:.1f} arcmin, {orient}.
@@ -464,12 +498,28 @@ def run(config_path, root=Path("."), do_export=True):
     return info
 
 
+def open_result(info):
+    """Open the exported web JPEG(s) in the system image viewer (macOS: `open`, Linux: `xdg-open`)."""
+    import shutil
+    import subprocess
+    import sys
+    files = [p for v in info.get("export", {}).get("files", {}).values() for p in v
+             if str(p).endswith("_web.jpg") and not str(p).endswith("_field_web.jpg")]   # the crop, not the full field
+    cmd = "open" if sys.platform == "darwin" else ("xdg-open" if shutil.which("xdg-open") else None)
+    if files and cmd:
+        for p in files:
+            subprocess.run([cmd, str(p)], check=False)
+
+
 def main():
     ap = argparse.ArgumentParser(description="Run the astropipe pipeline from a TOML config.")
     ap.add_argument("config")
     ap.add_argument("--no-export", action="store_true", help="skip writing images/captions")
+    ap.add_argument("--no-open", action="store_true", help="do not open the finished image")
     args = ap.parse_args()
-    run(args.config, Path("."), do_export=not args.no_export)
+    info = run(args.config, Path("."), do_export=not args.no_export)
+    if not args.no_export and not args.no_open:
+        open_result(info)
 
 
 if __name__ == "__main__":
