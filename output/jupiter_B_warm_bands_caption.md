@@ -13,7 +13,7 @@ The recorded light is infrared; all colours are an assignment, not "true" colour
 
 ## Processing
 
-calibrated stage-3 images (`_i2d.fits`) from MAST, one pair of filters exposed simultaneously (no rotation between them) → row destriping on empty sky (no high-pass) → close-up grid 0.031″/px centred on Jupiter (`reproject_adaptive`; F335M upsampled ×2) → background from empty corners → asinh stretch (a = 0.2), white point from the measured disk pixels (99.5 %), each filter normalised to its own white point → additive colour mixing → bad/flagged pixels filled with the local median; large saturated areas on the planet (bright limb haze, around the Great Red Spot in F335M) set to white; no local adjustments. Notebook `14_jupiter.ipynb`; all values in `params/jupiter.json`.
+calibrated stage-3 images (`_i2d.fits`) from MAST, one pair of filters exposed simultaneously (no rotation between them) → row destriping on empty sky (no high-pass) → close-up grid 0.031″/px centred on Jupiter (`reproject_adaptive`; F335M upsampled ×2) → background from empty corners → asinh stretch (a = 0.2), white point from the measured disk pixels (99.5 %), each filter normalised to its own white point → additive colour mixing → bad/flagged pixels filled with the local median; large saturated areas on the planet (bright limb haze, around the Great Red Spot in F335M) set to white; no local adjustments → isolated dark spots in F335M not flagged by the pipeline (180, probably bad values in one of three dither exposures) filled with the local median. Notebook `14_jupiter.ipynb`; all values in `params/jupiter.json`.
 
 ## Credits
 
