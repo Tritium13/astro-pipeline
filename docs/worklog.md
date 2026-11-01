@@ -317,3 +317,10 @@ python -m astropipe.explore --no-run     # nur suchen + Konfiguration schreiben
 - Neu: `grid.orientation = "field"` (Raster entlang des kleinsten umschließenden Rechtecks der gültigen Daten, Drehung ≤ ±45°) und `export.center = "max"` (größtes Rechteck, `export.max_rect`). Reprojektions-Cache prüft jetzt das Raster (`GRIDKEY`). Bildunterschrift nennt Nordwinkel, Art des Ausschnitts und Streifenkorrektur nur, wenn angewendet.
 - Test COSMOS: Raster 5723 × 2268, Nord 24° im Uhrzeigersinn, Sternversatz ≤ 0,15 px, Ausschnitt 2,0′ × 5,6′ (fast das ganze Feld statt 22 %).
 - Säule und NGC 602 auf `orientation = "field"` + `center = "max"` umgestellt (alte Ausschnitte als Kommentar in der Konfiguration).
+
+## 01.11.2026 (Abend) – weitere Läufe
+
+- `explore --list` (alle Beobachtungen eines Programms mit Datum und public/exclusive), nur Auflistung ohne Größenprüfung.
+- NGC 1808 (Programm 8277, o009): Halo-Durchmusterung – die Galaxie liegt außerhalb des Feldes, nur Halo-Sterne und Hintergrundgalaxien; starke Reststreifen (tiefes Feld). Nicht für die Galerie.
+- SN 1987A (Programm 7575, o002, 9 Filter): kaum Streifen. Gemeinsamer Bereich aller Filter = vier SW-Detektorkacheln mit Lückenkreuz → `center = "max"` wählte die leerste Kachel; Ausschnitt von Hand auf die Kachel mit hellem Stern, Haufen und (vermutlich) SN 1987A.
+- Offener Punkt: `max` bei Feldern aus mehreren Kacheln – Kachel nach Inhalt wählen (max-Rechteck pro Kachel, dann Inhalt vergleichen).

@@ -140,6 +140,8 @@ Ziel: beliebige passende JWST-Bilddaten mit derselben Pipeline per Skript verarb
 - [ ] Vor dem Löschen alter Rohdaten: `CAL_VER`/`CRDS_CTX` pro Datei in `params/*_run.json` festhalten (MAST prozessiert nach)
 - [x] Automatischer Ausschnitt: `center = "content"` (nach Bildinhalt) und `center = "max"` (größtes Rechteck); dazu `grid.orientation = "field"` (Raster entlang der Aufnahme gedreht) – Explorer-Standard ist jetzt `field` + `max`; ganzes Feld wird immer mit exportiert, Bild öffnet sich nach dem Lauf
 - [ ] Übersicht/Export bei gedrehtem Raster: Kompass (N/E-Pfeile) in die Übersicht zeichnen
+- [ ] `center = "max"` bei Feldern aus mehreren Detektorkacheln (Lückenkreuz, z. B. SN 1987A): größtes Rechteck pro Kachel, dann nach Inhalt wählen
+- Programm-Titel vorher lesen: Halo-Durchmusterungen (8277) zeigen die Galaxie selbst nicht
 - Vorab-Filter: nur Bildgebung, ≥ 3 Filter, öffentlich, Stufe 3, überlappende Bildfelder, Größengrenze (RAM 16 GB)
 - Erkenntnisse aus NGC 6720: Box-Suche soll Boxen mit negativem Score automatisch verwerfen (Detektor-Artefakte); wenn das Objekt das Feld füllt, gibt es keinen leeren Himmel → Hintergrund relativ, Streifenkorrektur mit lokalem Modell; Detektor-Blöcke (2D-Helligkeitsstufen) wären der nächste Schritt; Notebooks vor dem Ergebnis immer per „Restart & Run All“ prüfen (Zustandsfehler bei `boxes`)
 - Bekannte Fallstricke: Mosaike mit Detektorlücken (`binary_fill_holes` würde sie weiß füllen → Lückengröße begrenzen), Spektroskopie/Koronografie/Zeitreihen/bewegte Ziele ausschließen, große Datenmengen

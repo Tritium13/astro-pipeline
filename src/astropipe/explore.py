@@ -227,6 +227,23 @@ def write_report(cand, result, path, offset_warn_px=0.5, bad_frac_warn=1e-3):
     return text
 
 
+def list_program(program, instrument="NIRCAM/IMAGE"):
+    """Print all observations of a programme with >= 3 filters (target, filters, observing date)."""
+    obs, _ = mast.find_i2d(program, instrument)
+    t0, public = {}, {}
+    for row in obs:
+        prefix = str(row["obs_id"]).split("_nircam")[0]
+        t0[prefix] = min(t0.get(prefix, 1e9), float(row["t_min"]))
+        pub = str(row["dataRights"]).upper() == "PUBLIC" if "dataRights" in obs.colnames else True
+        public[prefix] = public.get(prefix, True) and pub
+    cands = sorted(group_candidates(obs), key=lambda c: c["prefix"])
+    print(f"programme {program}: {len(cands)} observations with >= 3 filters")
+    for c in cands:
+        date = Time(t0[c["prefix"]], format="mjd").iso[:10] if c["prefix"] in t0 else "?"
+        flag = "public   " if public.get(c["prefix"], True) else "exclusive"
+        print(f"  {c['prefix']:<22} {date}  {flag}  {c['target'][:28]:<28} {sorted(c['bands'])}")
+
+
 def find_in_program(program, prefix=None, max_gb=3.0, instrument="NIRCAM/IMAGE", verbose=True):
     """Pick an observation from a given programme instead of a random window.
 
@@ -259,7 +276,11 @@ def main():
     ap.add_argument("--no-open", action="store_true", help="do not open the finished image")
     ap.add_argument("--program", type=int, default=None, help="use this programme instead of a random window")
     ap.add_argument("--obs", default=None, help="observation prefix within --program, e.g. jw12591-o002_t001")
+    ap.add_argument("--list", action="store_true", help="with --program: only list its observations (>= 3 filters)")
     args = ap.parse_args()
+    if args.program and args.list:
+        list_program(args.program)
+        return
     if args.program:
         cand, info = find_in_program(args.program, args.obs, args.max_gb)
     else:

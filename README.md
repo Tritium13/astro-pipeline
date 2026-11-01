@@ -13,8 +13,8 @@ recomputed from the data and the parameter files alone.
 <p align="center">
   <img src="output/runs/explore_jw12591_o003_t001_star_forming_pillar_A_chromatic_web.jpg" alt="Star-forming pillar, JWST NIRCam (programme 12591)" width="420"><br>
   <em>Star-forming pillar in the South Pillars region of the Carina Nebula (programme 12591, data released October 2026) – made by the script with default
-  parameters (<code>python -m astropipe.explore --program 12591</code>); the only manual step was the
-  portrait crop. NIRCam, 6 filters, colours in wavelength order.</em>
+  parameters (<code>python -m astropipe.explore --program 12591</code>), no manual steps: grid rotated to the
+  observed field, crop = largest rectangle inside it. NIRCam, 6 filters, colours in wavelength order.</em>
 </p>
 
 | NGC 3132 – Southern Ring Nebula | NGC 6720 – Ring Nebula | NGC 6720 – NIRCam + MIRI |
@@ -25,7 +25,7 @@ recomputed from the data and the parameter files alone.
 | NGC 602 – young star cluster in the Small Magellanic Cloud | NGC 5643 – two observations combined |
 |---|---|
 | ![NGC 602](output/runs/explore_jw07035_o006_t001_ngc_602_A_chromatic_web.jpg) | ![NGC 5643](output/runs/ngc5643_A_chromatic_web.jpg) |
-| Cluster and its ring of gas and dust, ~200,000 light-years away; most small orange ellipses are background galaxies. NIRCam, 6 filters, 16 GB of data, made by the script (crop set by hand) | NIRCam, 3 filters; the black wedge is sky not covered by either observation |
+| Cluster and its ring of gas and dust, ~200,000 light-years away; most small orange ellipses are background galaxies. NIRCam, 6 filters, 16 GB of data, made by the script without manual steps (grid rotated to the field) | NIRCam, 3 filters; the black wedge is sky not covered by either observation |
 
 Each image has a caption file next to it (`*_caption.md`) with the filter → colour table,
 the processing steps and the credits.

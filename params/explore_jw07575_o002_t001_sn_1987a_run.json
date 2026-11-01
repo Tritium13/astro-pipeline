@@ -1,0 +1,441 @@
+{
+  "config": "configs/explore/jw07575-o002_t001.toml",
+  "astropipe": "0.1.0",
+  "files": {
+    "F090W": "jw07575-o002_t001_nircam_clear-f090w_i2d.fits",
+    "F115W": "jw07575-o002_t001_nircam_clear-f115w_i2d.fits",
+    "F140M": "jw07575-o002_t001_nircam_clear-f140m_i2d.fits",
+    "F150W": "jw07575-o002_t001_nircam_clear-f150w_i2d.fits",
+    "F200W": "jw07575-o002_t001_nircam_clear-f200w_i2d.fits",
+    "F277W": "jw07575-o002_t001_nircam_clear-f277w_i2d.fits",
+    "F335M": "jw07575-o002_t001_nircam_clear-f335m_i2d.fits",
+    "F356W": "jw07575-o002_t001_nircam_clear-f356w_i2d.fits",
+    "F444W": "jw07575-o002_t001_nircam_clear-f444w_i2d.fits"
+  },
+  "clean": {
+    "method": "auto",
+    "auto": {
+      "empty_field": true,
+      "measured": {
+        "F090W": {
+          "sky_fraction": 0.414,
+          "structure": 0.87,
+          "stripes_sky": {
+            "rows": 0.39,
+            "columns": 0.219
+          },
+          "stripes_local": {
+            "rows": 0.314,
+            "columns": 0.087
+          },
+          "stripes_rows": 0.39,
+          "stripes_columns": 0.219
+        },
+        "F115W": {
+          "sky_fraction": 0.183,
+          "structure": 0.97,
+          "stripes_sky": {
+            "rows": 0.453,
+            "columns": 0.311
+          },
+          "stripes_local": {
+            "rows": 0.29,
+            "columns": 0.14
+          },
+          "stripes_rows": 0.453,
+          "stripes_columns": 0.311
+        },
+        "F140M": {
+          "sky_fraction": 0.115,
+          "structure": 2.09,
+          "stripes_sky": {
+            "rows": 0.556,
+            "columns": 0.44
+          },
+          "stripes_local": {
+            "rows": 0.244,
+            "columns": 0.145
+          },
+          "stripes_rows": 0.556,
+          "stripes_columns": 0.44
+        },
+        "F150W": {
+          "sky_fraction": 0.152,
+          "structure": 1.38,
+          "stripes_sky": {
+            "rows": 0.505,
+            "columns": 0.325
+          },
+          "stripes_local": {
+            "rows": 0.28,
+            "columns": 0.137
+          },
+          "stripes_rows": 0.505,
+          "stripes_columns": 0.325
+        },
+        "F200W": {
+          "sky_fraction": 0.379,
+          "structure": 0.92,
+          "stripes_sky": {
+            "rows": 0.414,
+            "columns": 0.24
+          },
+          "stripes_local": {
+            "rows": 0.3,
+            "columns": 0.113
+          },
+          "stripes_rows": 0.414,
+          "stripes_columns": 0.24
+        },
+        "F277W": {
+          "sky_fraction": 0.095,
+          "structure": 1.14,
+          "stripes_sky": {
+            "rows": 0.406,
+            "columns": 0.268
+          },
+          "stripes_local": {
+            "rows": 0.284,
+            "columns": 0.172
+          },
+          "stripes_rows": 0.406,
+          "stripes_columns": 0.268
+        },
+        "F335M": {
+          "sky_fraction": 0.13,
+          "structure": 3.14,
+          "stripes_sky": {
+            "rows": 0.617,
+            "columns": 0.639
+          },
+          "stripes_local": {
+            "rows": 0.121,
+            "columns": 0.137
+          },
+          "stripes_rows": 0.617,
+          "stripes_columns": 0.639
+        },
+        "F356W": {
+          "sky_fraction": 0.122,
+          "structure": 3.01,
+          "stripes_sky": {
+            "rows": 0.557,
+            "columns": 0.542
+          },
+          "stripes_local": {
+            "rows": 0.174,
+            "columns": 0.156
+          },
+          "stripes_rows": 0.557,
+          "stripes_columns": 0.542
+        },
+        "F444W": {
+          "sky_fraction": 0.221,
+          "structure": 2.5,
+          "stripes_sky": {
+            "rows": 0.776,
+            "columns": 0.476
+          },
+          "stripes_local": {
+            "rows": 0.193,
+            "columns": 0.166
+          },
+          "stripes_rows": 0.776,
+          "stripes_columns": 0.476
+        }
+      },
+      "chosen": {
+        "F090W": {
+          "method": "sky",
+          "axis": "rows",
+          "smooth": 0,
+          "background2d_cell": 128
+        },
+        "F115W": {
+          "method": "sky",
+          "axis": "rows",
+          "smooth": 0,
+          "background2d_cell": 128
+        },
+        "F140M": {
+          "method": "sky",
+          "axis": "rows",
+          "smooth": 0,
+          "background2d_cell": 128
+        },
+        "F150W": {
+          "method": "sky",
+          "axis": "rows",
+          "smooth": 0,
+          "background2d_cell": 128
+        },
+        "F200W": {
+          "method": "sky",
+          "axis": "rows",
+          "smooth": 0,
+          "background2d_cell": 128
+        },
+        "F277W": {
+          "method": "sky",
+          "axis": "rows",
+          "smooth": 0,
+          "background2d_cell": 128
+        },
+        "F335M": {
+          "method": "sky",
+          "axis": "columns",
+          "smooth": 0,
+          "background2d_cell": 128
+        },
+        "F356W": {
+          "method": "sky",
+          "axis": "rows",
+          "smooth": 0,
+          "background2d_cell": 128
+        },
+        "F444W": {
+          "method": "sky",
+          "axis": "rows",
+          "smooth": 0,
+          "background2d_cell": 128
+        }
+      }
+    }
+  },
+  "moving_target": null,
+  "star_offsets_px": {
+    "F090W": 0.07437599772404496,
+    "F115W": 0.07806985317434499,
+    "F140M": 0.06478461020346954,
+    "F150W": null,
+    "F200W": null,
+    "F277W": null,
+    "F335M": 0.06529836235971645,
+    "F356W": 0.030050801105350827,
+    "F444W": 0.0
+  },
+  "grid_shape": [
+    2176,
+    2187
+  ],
+  "stretch": {
+    "saturated_holes_filled_px": {
+      "F090W": {
+        "saturated_px": 760,
+        "bad_px": 819
+      },
+      "F115W": {
+        "saturated_px": 864,
+        "bad_px": 292
+      },
+      "F140M": {
+        "saturated_px": 486,
+        "bad_px": 364
+      },
+      "F150W": {
+        "saturated_px": 1061,
+        "bad_px": 617
+      },
+      "F200W": {
+        "saturated_px": 1040,
+        "bad_px": 1053
+      },
+      "F277W": {
+        "saturated_px": 2063,
+        "bad_px": 621
+      },
+      "F335M": {
+        "saturated_px": 1149,
+        "bad_px": 409
+      },
+      "F356W": {
+        "saturated_px": 1884,
+        "bad_px": 437
+      },
+      "F444W": {
+        "saturated_px": 1354,
+        "bad_px": 387
+      }
+    },
+    "sky_boxes": {
+      "size_px": 150,
+      "yx": [
+        [
+          1725,
+          675
+        ],
+        [
+          600,
+          525
+        ],
+        [
+          1575,
+          1350
+        ],
+        [
+          600,
+          1575
+        ],
+        [
+          1275,
+          300
+        ],
+        [
+          1275,
+          1800
+        ]
+      ],
+      "scores": [
+        0.025611326098442078,
+        0.025788933038711548,
+        0.026182599365711212,
+        0.026192374527454376,
+        0.02790050208568573,
+        0.05490855500102043
+      ]
+    },
+    "per_band": {
+      "F090W": {
+        "black_k": 0.5,
+        "white_pct": 99.9,
+        "a": 0.05,
+        "bkg": 0.7351140975952148,
+        "noise": 0.5429378747940063,
+        "spread": 0.2147950530052185,
+        "black": -0.2714689373970032,
+        "white": 125.2916488647461
+      },
+      "F115W": {
+        "black_k": 0.5,
+        "white_pct": 99.9,
+        "a": 0.05,
+        "bkg": 0.43575263023376465,
+        "noise": 0.15248167514801025,
+        "spread": 0.476279616355896,
+        "black": -0.07624083757400513,
+        "white": 179.6636199951172
+      },
+      "F140M": {
+        "black_k": 0.5,
+        "white_pct": 99.9,
+        "a": 0.05,
+        "bkg": 0.366797536611557,
+        "noise": 0.07816088199615479,
+        "spread": 0.6176354289054871,
+        "black": -0.03908044099807739,
+        "white": 196.3705596923828
+      },
+      "F150W": {
+        "black_k": 0.5,
+        "white_pct": 99.9,
+        "a": 0.05,
+        "bkg": 0.3133505582809448,
+        "noise": 0.13087919354438782,
+        "spread": 0.40230703353881836,
+        "black": -0.06543959677219391,
+        "white": 220.28053283691406
+      },
+      "F200W": {
+        "black_k": 0.5,
+        "white_pct": 99.9,
+        "a": 0.05,
+        "bkg": 0.5296081304550171,
+        "noise": 0.319446325302124,
+        "spread": 0.5334269404411316,
+        "black": -0.159723162651062,
+        "white": 213.77398681640625
+      },
+      "F277W": {
+        "black_k": 0.5,
+        "white_pct": 99.9,
+        "a": 0.05,
+        "bkg": 0.32406747341156006,
+        "noise": 0.13248053193092346,
+        "spread": 0.3324401080608368,
+        "black": -0.06624026596546173,
+        "white": 166.29542541503906
+      },
+      "F335M": {
+        "black_k": 0.5,
+        "white_pct": 99.9,
+        "a": 0.05,
+        "bkg": 0.3741149306297302,
+        "noise": 0.06560264527797699,
+        "spread": 0.6201304197311401,
+        "black": -0.032801322638988495,
+        "white": 147.4449005126953
+      },
+      "F356W": {
+        "black_k": 0.5,
+        "white_pct": 99.9,
+        "a": 0.05,
+        "bkg": 0.3187497854232788,
+        "noise": 0.055729351937770844,
+        "spread": 0.5405857563018799,
+        "black": -0.027864675968885422,
+        "white": 155.9410858154297
+      },
+      "F444W": {
+        "black_k": 0.5,
+        "white_pct": 99.9,
+        "a": 0.05,
+        "bkg": 0.5194244384765625,
+        "noise": 0.054990626871585846,
+        "spread": 0.36018532514572144,
+        "black": -0.027495313435792923,
+        "white": 94.84481048583984
+      }
+    }
+  },
+  "colour": {
+    "A_chromatic": {
+      "hue_deg": {
+        "F090W": 240.0,
+        "F115W": 210.0,
+        "F140M": 180.0,
+        "F150W": 150.0,
+        "F200W": 120.0,
+        "F277W": 90.0,
+        "F335M": 60.0,
+        "F356W": 30.0,
+        "F444W": 0.0
+      },
+      "saturation": {},
+      "weights": {},
+      "luminance": null
+    }
+  },
+  "export": {
+    "center_mode": "max",
+    "center_yx": [
+      539,
+      585
+    ],
+    "half_hw": [
+      401,
+      397
+    ],
+    "size_arcmin": [
+      0.8337,
+      0.8421000000000001
+    ],
+    "brightness_center_yx": null,
+    "north_up": true,
+    "east_left": true,
+    "north_angle_deg": -13.98,
+    "files": {
+      "A_chromatic": [
+        "output/full_res/explore_jw07575_o002_t001_sn_1987a_A_chromatic_16bit.tif",
+        "output/full_res/explore_jw07575_o002_t001_sn_1987a_A_chromatic_full.png",
+        "output/runs/explore_jw07575_o002_t001_sn_1987a_A_chromatic_web.jpg",
+        "output/runs/explore_jw07575_o002_t001_sn_1987a_A_chromatic_caption.md",
+        "output/runs/explore_jw07575_o002_t001_sn_1987a_A_chromatic_overview.jpg",
+        "output/full_res/explore_jw07575_o002_t001_sn_1987a_A_chromatic_field_16bit.tif",
+        "output/full_res/explore_jw07575_o002_t001_sn_1987a_A_chromatic_field_full.png",
+        "output/runs/explore_jw07575_o002_t001_sn_1987a_A_chromatic_field_web.jpg",
+        "output/runs/explore_jw07575_o002_t001_sn_1987a_A_chromatic_field_caption.md"
+      ]
+    }
+  },
+  "runtime_s": 537.9
+}
