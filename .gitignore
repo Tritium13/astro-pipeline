@@ -16,3 +16,4 @@ __pycache__/
 # Python packaging
 *.egg-info/
 build/
+notebooks/Abfragen.ipynb
